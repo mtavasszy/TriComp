@@ -32,6 +32,13 @@ float TriangleSet::GetMSE(sf::Texture& targetTexture)
 	return 0.0f;
 }
 
+void TriangleSet::DrawRenderTexture(sf::RenderTexture& rt)
+{
+	for (int i = 0; i < m_triangles.size(); i++) {
+		rt.draw(m_triangles[i]);
+	}
+}
+
 void TriangleSet::Draw(sf::RenderWindow& window)
 {
 	for (int i = 0; i < m_triangles.size(); i++) {

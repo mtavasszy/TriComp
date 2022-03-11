@@ -27,8 +27,7 @@ private:
 	sf::Texture m_targetTexture;
 	sf::Sprite m_targetSprite;
 
-	sf::Image m_bestImage;
-	sf::Texture m_bestTexture;
+	sf::RenderTexture m_bestRenderTexture;
 	sf::Sprite m_bestSprite;
 
 	std::vector<TriangleSet> m_triangleSets;

@@ -48,10 +48,14 @@ void App::Initialize()
 	m_targetTexture.loadFromImage(m_targetImage);
 	m_targetSprite.setTexture(m_targetTexture, true);
 
+	m_bestRenderTexture.create(m_targetImage.getSize().x, m_targetImage.getSize().y);
+	m_bestSprite.setTexture(m_bestRenderTexture.getTexture(), true);
+	m_bestSprite.setPosition(sf::Vector2f(m_targetImage.getSize().x, 0));
+
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
 
-	m_window.create(sf::VideoMode(m_screenW, m_screenH), "TriComp", sf::Style::Default, settings);
+	m_window.create(sf::VideoMode(m_screenW * 2, m_screenH), "TriComp", sf::Style::Default, settings);
 
 	m_triangleSets.reserve(GEN_SIZE);
 
@@ -60,21 +64,29 @@ void App::Initialize()
 		tset.Initialize(m_seedDist(m_gen), float(m_screenW), float(m_screenH));
 		m_triangleSets.push_back(tset);
 	}
+
+	m_triangleSets[0].DrawRenderTexture(m_bestRenderTexture);
 }
 
 void App::Update()
 {
+	for (int i = 0; i < m_triangleSets.size(); i++) {
+		float fitness = m_triangleSets[i].GetMSE(m_targetTexture);
+	}
+
+//   sort by fitness
+//   eliminate
+//   crossover
+//   mutate
+//	 update best render texture
 }
 
 void App::Draw()
 {
 	m_window.clear();
 
-	m_window.draw(m_renderSprite);
-
-	//for (int i = 0; i < m_triangleSets.size(); i++) {
-	//	m_triangleSets[i].Draw(m_window);
-	//}
+	m_window.draw(m_targetSprite);
+	m_window.draw(m_bestSprite);
 
 	m_window.display();
 }

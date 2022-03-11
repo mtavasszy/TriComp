@@ -12,6 +12,7 @@ public:
 	TriangleSet();
 	void Initialize(int seed, float screenW, float screenH);
 	float GetMSE(sf::Texture &targetTexture);
+	void DrawRenderTexture(sf::RenderTexture& rt);
 	void Draw(sf::RenderWindow& window);
 
 	std::mt19937 m_gen;
