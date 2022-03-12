@@ -32,10 +32,6 @@ void App::Initialize()
 	LoadShaders();
 	InitWindow();
 	InitTriSets();
-
-	//m_triangleSets[0].DrawRenderTexture(m_bestRenderTexture);
-	m_triangleSets[0].DrawMSETexture(m_squaredErrorShader, m_targetImageSprite, m_bestRenderTexture);
-	m_triangleSets[0].GetMSE(m_squaredErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite);
 }
 
 void App::InitRandom()
@@ -93,51 +89,71 @@ void App::InitWindow()
 
 void App::InitTriSets()
 {
+	std::cout << "Generating " << GEN_SIZE << " random triangle sets...\n";
+
+	m_bestMSE = FLT_MAX;
+
+	m_triangleSets.clear();
 	m_triangleSets.reserve(GEN_SIZE);
 
 	for (int i = 0; i < GEN_SIZE; i++) {
 		m_triangleSets.push_back(TriangleSet(m_seedDist(m_gen), m_screenW, m_screenH));
 	}
+
+	std::cout << "Generating completed!\n";
 }
 
 void App::Update()
 {
-	//RunGeneration();
-	//CreateOffspring();
-	//SetBest();
+	RunGeneration();
+	CreateOffspring();
+	SetBest();
+}
 
-
-	//   eliminate
-	//   crossover
-	//   mutate
-	//	 update best render texture
+bool FitnessSortComp(const std::pair<int, float> f0, const std::pair<int, float> f1)
+{
+	return (f0.second < f1.second);
 }
 
 void App::RunGeneration()
 {
+	std::cout << "Computing triangle set MSE...\n";
+
 	m_fitnessRanking.clear();
 	m_fitnessRanking.reserve(GEN_SIZE);
 
 	for (int i = 0; i < m_triangleSets.size(); i++) {
-		//const float fitness = m_triangleSets[i].GetMSE(m_squaredErrorShader, m_targetImageSprite);
-		//m_fitnessRanking.push_back(std::pair<float, int >(fitness, i));
+		const float fitness = m_triangleSets[i].GetMSE(m_squaredErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite);
+		m_fitnessRanking.push_back(std::pair<int, float>(i, fitness));
 	}
+
+	std::cout << "All triangle sets evaluated!\n";
+	std::cout << "Sorting on MSE...\n";
+
+	std::sort(m_fitnessRanking.begin(), m_fitnessRanking.end(), FitnessSortComp);
+
+	std::cout << "Sorting completed!\n";
 }
 
-bool FitnessSortComp(const std::pair<float, int> f0, const std::pair<float, int> f1)
-{
-	return (f0.first < f1.first);
-}
+
 
 void App::CreateOffspring()
 {
-	std::sort(m_fitnessRanking.begin(), m_fitnessRanking.end(), FitnessSortComp);
-
-
+	InitTriSets();
 }
 
 void App::SetBest()
 {
+	int bestTriSetId = m_fitnessRanking[0].first;
+	std::cout << "Best creature so far has a MSE of " << m_bestMSE << "\n";
+	std::cout << "Best creature of this generation is " << bestTriSetId << " with a MSE of " << m_fitnessRanking[0].second << "\n";
+
+	if (m_fitnessRanking[0].second < m_bestMSE) {
+		m_bestTriangleSet = m_triangleSets[m_fitnessRanking[0].first];
+		m_bestMSE = m_fitnessRanking[0].second;
+	}
+
+	m_bestTriangleSet.DrawRenderTexture(m_bestRenderTexture);
 }
 
 void App::Draw()

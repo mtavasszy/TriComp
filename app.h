@@ -40,9 +40,11 @@ private:
 
 	sf::RenderTexture m_bestRenderTexture;
 	sf::Sprite m_bestImageSprite;
+	TriangleSet m_bestTriangleSet;
+	float m_bestMSE;
 
 	std::vector<TriangleSet> m_triangleSets;
-	std::vector<std::pair<float, int>> m_fitnessRanking;
+	std::vector<std::pair<int, float>> m_fitnessRanking;
 };
 
 #endif  // APP_H_
