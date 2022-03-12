@@ -47,11 +47,26 @@ float TriangleSet::GetMSE(sf::Shader &squaredErrorShader, sf::Shader &getMipMapV
 	squaredErrorTexture.create(m_screenW, m_screenH);
 	DrawMSETexture(squaredErrorShader, targetImageSprite, squaredErrorTexture);
 
+	float pixelAvg = GetPixelAverageMipMap(getMipMapVal, maxMipmapLvl, squaredErrorTexture);
+	//float pixelAvg = GetPixelAverageCPU(squaredErrorTexture);
+
+	return pixelAvg;
+}
+
+void TriangleSet::DrawRenderTexture(sf::RenderTexture& rt)
+{
+	for (int i = 0; i < m_triangles.size(); i++) {
+		rt.draw(m_triangles[i]);
+	}
+}
+
+float TriangleSet::GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& renderTexture)
+{
 	// get mean squared average by averaging all pixels in the squaredError texture
-	squaredErrorTexture.generateMipmap();
+	renderTexture.generateMipmap();
 
 	sf::Sprite squaredErrorSprite;
-	squaredErrorSprite.setTexture(squaredErrorTexture.getTexture());
+	squaredErrorSprite.setTexture(renderTexture.getTexture());
 
 	// copy the lowest level mipmap value into a 1x1 texture 
 	sf::RenderTexture avgMSETexture;
@@ -66,16 +81,29 @@ float TriangleSet::GetMSE(sf::Shader &squaredErrorShader, sf::Shader &getMipMapV
 	sf::Image avgMSEImage = avgMSETexture.getTexture().copyToImage();
 	sf::Color resultMipMap = avgMSEImage.getPixel(0, 0);
 
-	float resultMSE = float(resultMipMap.r + resultMipMap.g + resultMipMap.b);
-
-	return resultMSE;
+	return float(resultMipMap.r + resultMipMap.g + resultMipMap.b);
 }
 
-void TriangleSet::DrawRenderTexture(sf::RenderTexture& rt)
+float TriangleSet::GetPixelAverageCPU(sf::RenderTexture& renderTexture)
 {
-	for (int i = 0; i < m_triangles.size(); i++) {
-		rt.draw(m_triangles[i]);
+	sf::Image image = renderTexture.getTexture().copyToImage();
+
+	float r = 0.f;
+	float g = 0.f;
+	float b = 0.f;
+
+	for (int x = 0; x < int(image.getSize().x); x++) {
+		for (int y = 0; y < int(image.getSize().y); y++) {
+			sf::Color c = image.getPixel(x,y);
+			r += float(c.r);
+			g += float(c.g);
+			b += float(c.b);
+		}
 	}
+
+	float nPixels = float(image.getSize().x * image.getSize().y);
+
+	return (r + g + b) / nPixels;
 }
 
 void TriangleSet::DrawMSETexture(sf::Shader& squaredErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt)

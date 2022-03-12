@@ -16,6 +16,8 @@ public:
 	void InitTriangles();
 	float GetMSE(sf::Shader& squaredErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite);
 	void DrawRenderTexture(sf::RenderTexture& rt);
+	float GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& renderTexture);
+	float GetPixelAverageCPU(sf::RenderTexture& renderTexture);
 
 	void DrawMSETexture(sf::Shader& squaredErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt);
 
