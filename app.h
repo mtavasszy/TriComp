@@ -13,7 +13,15 @@ public:
 
 private:
 	void Initialize();
+	void InitRandom();
+	void LoadImage();
+	void LoadShaders();
+	void InitWindow();
+	void InitTriSets();
 	void Update();
+	void RunGeneration();
+	void CreateOffspring();
+	void SetBest();
 	void Draw();
 
 	std::mt19937 m_gen;
@@ -22,15 +30,19 @@ private:
 	int m_screenW, m_screenH;
 
 	sf::RenderWindow m_window;
+	sf::Shader m_squaredErrorShader;
+	sf::Shader m_getMipmapValShader;
+	int m_maxMipmapLvl;
 
 	sf::Image m_targetImage;
-	sf::Texture m_targetTexture;
-	sf::Sprite m_targetSprite;
+	sf::Texture m_targetImageTexture;
+	sf::Sprite m_targetImageSprite;
 
 	sf::RenderTexture m_bestRenderTexture;
-	sf::Sprite m_bestSprite;
+	sf::Sprite m_bestImageSprite;
 
 	std::vector<TriangleSet> m_triangleSets;
+	std::vector<std::pair<float, int>> m_fitnessRanking;
 };
 
 #endif  // APP_H_
