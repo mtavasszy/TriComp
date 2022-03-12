@@ -55,6 +55,7 @@ float TriangleSet::GetMSE(sf::Shader &squaredErrorShader, sf::Shader &getMipMapV
 
 void TriangleSet::DrawRenderTexture(sf::RenderTexture& rt)
 {
+	rt.clear(sf::Color::Black);
 	for (int i = 0; i < m_triangles.size(); i++) {
 		rt.draw(m_triangles[i]);
 	}
@@ -108,6 +109,8 @@ float TriangleSet::GetPixelAverageCPU(sf::RenderTexture& renderTexture)
 
 void TriangleSet::DrawMSETexture(sf::Shader& squaredErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt)
 {
+	rt.clear(sf::Color::Black);
+
 	sf::RenderTexture triangleImageTexture;
 	triangleImageTexture.create(m_screenW, m_screenH);
 	DrawRenderTexture(triangleImageTexture);
@@ -116,7 +119,6 @@ void TriangleSet::DrawMSETexture(sf::Shader& squaredErrorShader, sf::Sprite& tar
 	squaredErrorShader.setUniform("triangleImgTexture", triangleImageTexture.getTexture());
 
 	rt.draw(targetImageSprite, &squaredErrorShader);
-
 }
 
 void TriangleSet::Draw(sf::RenderWindow& window)
