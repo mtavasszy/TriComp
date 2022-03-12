@@ -106,8 +106,8 @@ void App::InitTriSets()
 void App::Update()
 {
 	RunGeneration();
-	CreateOffspring();
 	SetBest();
+	CreateOffspring();
 }
 
 bool FitnessSortComp(const std::pair<int, float> f0, const std::pair<int, float> f1)
@@ -139,7 +139,18 @@ void App::RunGeneration()
 
 void App::CreateOffspring()
 {
-	InitTriSets();
+	std::cout << "Creating offspring...\n";
+
+	std::vector<TriangleSet> offspring(GEN_SIZE);
+
+	for (int i = 0; i < GEN_SIZE / 2; i++) {
+		offspring[i * 2] = m_triangleSets[m_fitnessRanking[i].first].GenerateOffspring();
+		offspring[i * 2 + 1] = m_triangleSets[m_fitnessRanking[i].first].GenerateOffspring();
+	}
+
+	m_triangleSets = offspring;
+
+	std::cout << "Offspring generated!\n";
 }
 
 void App::SetBest()

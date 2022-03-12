@@ -14,22 +14,29 @@ public:
 	void Initialize(int seed);
 	void InitRandom(int seed);
 	void InitTriangles();
+
 	float GetMSE(sf::Shader& squaredErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite);
 	void DrawRenderTexture(sf::RenderTexture& rt);
 	float GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& renderTexture);
 	float GetPixelAverageCPU(sf::RenderTexture& renderTexture);
-
 	void DrawMSETexture(sf::Shader& squaredErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt);
 
-	void Draw(sf::RenderWindow& window);
+	TriangleSet GenerateOffspring();
+	void Mutate();
+	void MutateVertexValue(int t, int p);
+	sf::Vector2f MutatePosition(sf::Vector2f vec, bool isX);
+	void MutateColorValue(int t, int channel);
 
 	std::mt19937 m_gen;
 	
 	int m_screenW, m_screenH;
 	
-	std::uniform_int_distribution<int> m_seedDist;
-	std::uniform_real_distribution<float> m_triDist;
+	std::uniform_real_distribution<float> m_triValDist;
 	std::uniform_int_distribution<uint32_t> m_colorDist;
+	std::uniform_real_distribution<float> m_mutTriDist;
+	std::uniform_int_distribution<int> m_mutValDist;
+	std::uniform_int_distribution<int> m_mutPosBitDist;
+	std::uniform_int_distribution<int> m_mutColBitDist;
 
 	std::vector<sf::ConvexShape> m_triangles;
 };
