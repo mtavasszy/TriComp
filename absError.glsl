@@ -12,7 +12,6 @@ void main()
     vec4 triangleImgVal = texture2D(triangleImgTexture, coord);
 
     vec3 error = targetImgVal.xyz * targetImgVal.w - triangleImgVal.xyz * triangleImgVal.w;
-    vec3 squaredError = error * error;
 
-    gl_FragColor = vec4(squaredError, 1.f);
+    gl_FragColor = vec4(abs(error), 1.f);
 }

@@ -30,7 +30,7 @@ private:
 	int m_screenW, m_screenH;
 
 	sf::RenderWindow m_window;
-	sf::Shader m_squaredErrorShader;
+	sf::Shader m_absErrorShader;
 	sf::Shader m_getMipmapValShader;
 	int m_maxMipmapLvl;
 

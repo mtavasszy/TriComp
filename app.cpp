@@ -69,7 +69,7 @@ void App::LoadImage()
 
 void App::LoadShaders()
 {
-	if (!m_squaredErrorShader.loadFromFile("squaredError.glsl", sf::Shader::Fragment))
+	if (!m_absErrorShader.loadFromFile("absError.glsl", sf::Shader::Fragment))
 	{
 		exit(-1);
 	}
@@ -123,7 +123,7 @@ void App::RunGeneration()
 	m_fitnessRanking.reserve(GEN_SIZE);
 
 	for (int i = 0; i < m_triangleSets.size(); i++) {
-		const float fitness = m_triangleSets[i].GetMSE(m_squaredErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite);
+		const float fitness = m_triangleSets[i].GetMSE(m_absErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite);
 		m_fitnessRanking.push_back(std::pair<int, float>(i, fitness));
 	}
 
