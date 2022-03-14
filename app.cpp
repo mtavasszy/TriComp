@@ -69,7 +69,7 @@ void App::LoadImage()
 
 void App::LoadShaders()
 {
-	if (!m_squaredErrorShader.loadFromFile("squaredError.glsl", sf::Shader::Fragment)) 
+	if (!m_squaredErrorShader.loadFromFile("squaredError.glsl", sf::Shader::Fragment))
 	{
 		exit(-1);
 	}
@@ -143,16 +143,13 @@ void App::CreateOffspring()
 
 	std::vector<TriangleSet> offspring(GEN_SIZE);
 
-	for (int i = 0; i < GEN_SIZE / 4; i++) {
-		TriangleSet* t1 = &m_triangleSets[m_fitnessRanking[2*i].first];
-		TriangleSet* t2 = &m_triangleSets[m_fitnessRanking[2*i+1].first];
+	for (int i = 0; i < GEN_SIZE / 2; i++) {
+		TriangleSet* t1 = &m_triangleSets[m_fitnessRanking[i].first];
+		TriangleSet* t2 = &m_triangleSets[m_fitnessRanking[i + 1].first];
 
-		auto crossBreedPair1 = t1->CrossBreed(t2);
-		auto crossBreedPair2 = t1->CrossBreed(t2);
-		offspring[i * 4] = crossBreedPair1.first;
-		offspring[i * 4 + 1] = crossBreedPair1.second;
-		offspring[i * 4 + 2] = crossBreedPair2.second;
-		offspring[i * 4 + 3] = crossBreedPair2.second;
+		auto crossBreedPair = t1->CrossBreed(t2);
+		offspring[i * 2] = crossBreedPair.first;
+		offspring[i * 2 + 1] = crossBreedPair.second;
 	}
 
 	m_triangleSets = offspring;
