@@ -19,7 +19,6 @@ public:
 	float GetMSE(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite);
 	void DrawRenderTexture(sf::RenderTexture& rt);
 	float GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& renderTexture);
-	float GetPixelAverageCPU(sf::RenderTexture& renderTexture);
 	void DrawMSETexture(sf::Shader& absErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt);
 
 	std::pair<TriangleSet, TriangleSet> CrossBreed(const TriangleSet* otherParent);

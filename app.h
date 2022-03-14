@@ -41,7 +41,7 @@ private:
 	sf::RenderTexture m_bestRenderTexture;
 	sf::Sprite m_bestImageSprite;
 	TriangleSet m_bestTriangleSet;
-	float m_bestMSE;
+	float m_lowestError;
 
 	int n_iterations = 0;
 

@@ -75,16 +75,12 @@ void TriangleSet::InitTriangles()
 
 float TriangleSet::GetMSE(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite)
 {
-	// get per-pixel squared error between target and generated
-	sf::RenderTexture squaredErrorTexture;
-	squaredErrorTexture.create(m_screenW, m_screenH);
-	DrawMSETexture(absErrorShader, targetImageSprite, squaredErrorTexture);
+	// get per-pixel absolute error between target and generated
+	sf::RenderTexture absErrorTexture;
+	absErrorTexture.create(m_screenW, m_screenH);
+	DrawMSETexture(absErrorShader, targetImageSprite, absErrorTexture);
 
-#if USEMIPMAP == true
-	float pixelAvg = GetPixelAverageMipMap(getMipMapVal, maxMipmapLvl, squaredErrorTexture);
-#else
-	float pixelAvg = GetPixelAverageCPU(squaredErrorTexture);
-#endif
+	float pixelAvg = GetPixelAverageMipMap(getMipMapVal, maxMipmapLvl, absErrorTexture);
 
 	return pixelAvg;
 }
@@ -97,13 +93,13 @@ void TriangleSet::DrawRenderTexture(sf::RenderTexture& rt)
 	}
 }
 
-float TriangleSet::GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& renderTexture)
+float TriangleSet::GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& absErrorRenderTexture)
 {
-	// get mean squared average by averaging all pixels in the squaredError texture
-	renderTexture.generateMipmap();
+	// get mean absolute average by averaging all pixels in the absError texture
+	absErrorRenderTexture.generateMipmap();
 
-	sf::Sprite squaredErrorSprite;
-	squaredErrorSprite.setTexture(renderTexture.getTexture());
+	sf::Sprite absErrorSprite;
+	absErrorSprite.setTexture(absErrorRenderTexture.getTexture());
 
 	// copy the lowest level mipmap value into a 1x1 texture 
 	sf::RenderTexture avgMSETexture;
@@ -112,35 +108,13 @@ float TriangleSet::GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmap
 	getMipMapVal.setUniform("mipmapTexture", sf::Shader::CurrentTexture);
 	getMipMapVal.setUniform("maxMipmapLvl", maxMipmapLvl);
 
-	avgMSETexture.draw(squaredErrorSprite, &getMipMapVal);
+	avgMSETexture.draw(absErrorSprite, &getMipMapVal);
 
 	// copy 1x1 texture to cpu and retrieve value
 	sf::Image avgMSEImage = avgMSETexture.getTexture().copyToImage();
 	sf::Color resultMipMap = avgMSEImage.getPixel(0, 0);
 
 	return float(resultMipMap.r + resultMipMap.g + resultMipMap.b);
-}
-
-float TriangleSet::GetPixelAverageCPU(sf::RenderTexture& renderTexture)
-{
-	sf::Image image = renderTexture.getTexture().copyToImage();
-
-	float r = 0.f;
-	float g = 0.f;
-	float b = 0.f;
-
-	for (int x = 0; x < int(image.getSize().x); x++) {
-		for (int y = 0; y < int(image.getSize().y); y++) {
-			sf::Color c = image.getPixel(x, y);
-			r += float(c.r);
-			g += float(c.g);
-			b += float(c.b);
-		}
-	}
-
-	float nPixels = float(image.getSize().x * image.getSize().y);
-
-	return (r + g + b) / nPixels;
 }
 
 void TriangleSet::DrawMSETexture(sf::Shader& absErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt)

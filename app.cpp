@@ -93,7 +93,7 @@ void App::InitTriSets()
 	std::cout << "Generating " << GEN_SIZE << " random triangle sets...\n";
 	Stopwatch sw;
 
-	m_bestMSE = FLT_MAX;
+	m_lowestError = FLT_MAX;
 
 	m_triangleSets.clear();
 	m_triangleSets.reserve(GEN_SIZE);
@@ -115,7 +115,7 @@ void App::Update()
 
 	std::cout << "\n---------------\n";
 	std::cout << "Iteration " << ++n_iterations << " finished, total time was " << sw.reset() << " ms\n";
-	std::cout << "Lowest MSE so far is " << m_bestMSE << "\n";
+	std::cout << "Lowest error so far is " << m_lowestError << "\n";
 	std::cout << "---------------\n\n";
 }
 
@@ -126,7 +126,7 @@ bool FitnessSortComp(const std::pair<int, float> f0, const std::pair<int, float>
 
 void App::RunGeneration()
 {
-	std::cout << "Computing triangle set MSE...\n";
+	std::cout << "Computing all triangle set errors...\n";
 	Stopwatch sw;
 
 	m_fitnessRanking.clear();
@@ -138,7 +138,7 @@ void App::RunGeneration()
 	}
 
 	std::cout << "All triangle sets evaluated! It took " << sw.reset() << " ms\n";
-	std::cout << "Sorting on MSE...\n";
+	std::cout << "Sorting on lowest error...\n";
 
 	std::sort(m_fitnessRanking.begin(), m_fitnessRanking.end(), FitnessSortComp);
 
@@ -171,11 +171,11 @@ void App::CreateOffspring()
 void App::SetBest()
 {
 	int bestTriSetId = m_fitnessRanking[0].first;
-	std::cout << "Best creature of this generation is " << bestTriSetId << " with a MSE of " << m_fitnessRanking[0].second << "\n";
+	std::cout << "Best creature of this generation is " << bestTriSetId << " with an error of " << m_fitnessRanking[0].second << "\n";
 
-	if (m_fitnessRanking[0].second < m_bestMSE) {
+	if (m_fitnessRanking[0].second < m_lowestError) {
 		m_bestTriangleSet = m_triangleSets[m_fitnessRanking[0].first];
-		m_bestMSE = m_fitnessRanking[0].second;
+		m_lowestError = m_fitnessRanking[0].second;
 	}
 
 	m_bestTriangleSet.DrawRenderTexture(m_bestRenderTexture);
