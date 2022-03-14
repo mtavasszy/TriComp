@@ -2,29 +2,6 @@
 
 TriangleSet::TriangleSet() {}
 
-TriangleSet::TriangleSet(const TriangleSet* triSet)
-{
-	m_gen = triSet->m_gen;
-
-	m_screenW = triSet->m_screenW;
-	m_screenH = triSet->m_screenH;
-
-	m_triValDist = triSet->m_triValDist;
-	m_colorDist = triSet->m_colorDist;
-	m_crossOverDist = triSet->m_crossOverDist;
-	m_mutTriDist = triSet->m_mutTriDist;
-	m_mutValDist = triSet->m_mutValDist;
-	m_mutPosBitDist = triSet->m_mutPosBitDist;
-	m_mutColBitDist = triSet->m_mutColBitDist;
-
-	m_triangles.clear();
-	m_triangles.reserve(N_TRIANGLES);
-	for (int i = 0; i < triSet->m_triangles.size(); i++) {
-		const sf::ConvexShape tri_copy = triSet->m_triangles[i];
-		m_triangles.push_back(tri_copy);
-	}
-}
-
 TriangleSet::TriangleSet(const TriangleSet* p1, const TriangleSet* p2, int crossOverIndex)
 {
 	m_gen = p1->m_gen;
@@ -188,13 +165,6 @@ std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* o
 	c2.Mutate();
 
 	return std::pair<TriangleSet, TriangleSet>(c1, c2);
-}
-
-TriangleSet TriangleSet::GenerateOffspring()
-{
-	TriangleSet t = TriangleSet(this);
-	t.Mutate();
-	return t;
 }
 
 void TriangleSet::Mutate()
