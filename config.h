@@ -9,7 +9,7 @@ constexpr bool SET_SEED = true;
 
 // EVOLUTIONARY ALGORITHM
 constexpr int GEN_SIZE = 1000;
-constexpr float MUTATION_CHANCE = 0.5f;
+constexpr float MUTATION_CHANCE = 0.1f;
 
 // TRIANGLE SET
 constexpr int N_TRIANGLES = 50;

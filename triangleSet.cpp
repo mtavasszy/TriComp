@@ -1,6 +1,28 @@
 #include "triangleSet.h"
 
-TriangleSet::TriangleSet(){}
+TriangleSet::TriangleSet() {}
+
+TriangleSet::TriangleSet(const TriangleSet* triSet)
+{
+	m_gen = triSet->m_gen;
+
+	m_screenW = triSet->m_screenW;
+	m_screenH = triSet->m_screenH;
+
+	m_triValDist = triSet->m_triValDist;
+	m_colorDist = triSet->m_colorDist;
+	m_mutTriDist = triSet->m_mutTriDist;
+	m_mutValDist = triSet->m_mutValDist;
+	m_mutPosBitDist = triSet->m_mutPosBitDist;
+	m_mutColBitDist = triSet->m_mutColBitDist;
+
+	m_triangles.clear();
+	m_triangles.reserve(N_TRIANGLES);
+	for (int i = 0; i < triSet->m_triangles.size(); i++) {
+		sf::ConvexShape tri_copy = triSet->m_triangles[i];
+		m_triangles.push_back(tri_copy);
+	}
+}
 
 TriangleSet::TriangleSet(int seed, int screenW, int screenH)
 {
@@ -25,7 +47,7 @@ void TriangleSet::InitRandom(int seed)
 	m_colorDist = std::uniform_int_distribution<uint32_t>(0, UINT32_MAX);
 	m_mutTriDist = std::uniform_real_distribution<float>(0.f, 1.f);
 	m_mutValDist = std::uniform_int_distribution<int>(0, 10); // 10 values in a triangle
-	m_mutPosBitDist = std::uniform_int_distribution<int>(0, N_VALBITS-1);
+	m_mutPosBitDist = std::uniform_int_distribution<int>(0, N_VALBITS - 1);
 	m_mutColBitDist = std::uniform_int_distribution<int>(0, 31);
 }
 
@@ -43,7 +65,7 @@ void TriangleSet::InitTriangles()
 	}
 }
 
-float TriangleSet::GetMSE(sf::Shader &squaredErrorShader, sf::Shader &getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite)
+float TriangleSet::GetMSE(sf::Shader& squaredErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite)
 {
 	// get per-pixel squared error between target and generated
 	sf::RenderTexture squaredErrorTexture;
@@ -98,7 +120,7 @@ float TriangleSet::GetPixelAverageCPU(sf::RenderTexture& renderTexture)
 
 	for (int x = 0; x < int(image.getSize().x); x++) {
 		for (int y = 0; y < int(image.getSize().y); y++) {
-			sf::Color c = image.getPixel(x,y);
+			sf::Color c = image.getPixel(x, y);
 			r += float(c.r);
 			g += float(c.g);
 			b += float(c.b);
@@ -126,7 +148,7 @@ void TriangleSet::DrawMSETexture(sf::Shader& squaredErrorShader, sf::Sprite& tar
 
 TriangleSet TriangleSet::GenerateOffspring()
 {
-	TriangleSet t = (*this);
+	TriangleSet t = TriangleSet(this);
 	t.Mutate();
 	return t;
 }
@@ -154,7 +176,7 @@ void TriangleSet::MutateVertexValue(int t, int p)
 		m_triangles[t].setPoint(p, MutatePosition(m_triangles[t].getPoint(p), true));
 	}
 	else {
-		m_triangles[t].setPoint(p-3, MutatePosition(m_triangles[t].getPoint(p-3), false));
+		m_triangles[t].setPoint(p - 3, MutatePosition(m_triangles[t].getPoint(p - 3), false));
 	}
 }
 
@@ -166,7 +188,7 @@ sf::Vector2f TriangleSet::MutatePosition(sf::Vector2f vec, bool isX)
 		uint8_t val_int = uint8_t(((vec.x / float(m_screenW)) * 255.f) + 0.5f);
 		val_int ^= uint8_t(1) << bit;
 		auto newVec = sf::Vector2f((float(val_int) / 255.f) * float(m_screenW), vec.y);
-		return sf::Vector2f( (float(val_int) / 255.f) * float(m_screenW), vec.y);
+		return sf::Vector2f((float(val_int) / 255.f) * float(m_screenW), vec.y);
 	}
 	else {
 		uint8_t val_int = uint8_t(((vec.y / float(m_screenH)) * 255.f) + 0.5f);

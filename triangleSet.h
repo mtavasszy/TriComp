@@ -10,6 +10,7 @@
 class TriangleSet {
 public:
 	TriangleSet();
+	TriangleSet(const TriangleSet* triSet);
 	TriangleSet(int seed, int screenW, int screenH);
 	void Initialize(int seed);
 	void InitRandom(int seed);
