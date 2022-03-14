@@ -2,6 +2,7 @@
 #define CONFIG_H_
 
 // APP
+#define USEMIPMAP true
 constexpr char TARGET_IMG_PATH[] = "images/src/";
 constexpr char TARGET_IMG_FNAME[] = "monalisa.jpg";
 constexpr int SEED = 1;

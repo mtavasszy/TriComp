@@ -80,8 +80,11 @@ float TriangleSet::GetMSE(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, 
 	squaredErrorTexture.create(m_screenW, m_screenH);
 	DrawMSETexture(absErrorShader, targetImageSprite, squaredErrorTexture);
 
+#if USEMIPMAP == true
 	float pixelAvg = GetPixelAverageMipMap(getMipMapVal, maxMipmapLvl, squaredErrorTexture);
-	//float pixelAvg = GetPixelAverageCPU(squaredErrorTexture);
+#else
+	float pixelAvg = GetPixelAverageCPU(squaredErrorTexture);
+#endif
 
 	return pixelAvg;
 }
