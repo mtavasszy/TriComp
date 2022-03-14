@@ -11,6 +11,7 @@ class TriangleSet {
 public:
 	TriangleSet();
 	TriangleSet(const TriangleSet* triSet);
+	TriangleSet(const TriangleSet* p1, const TriangleSet* p2, int crossOverIndex);
 	TriangleSet(int seed, int screenW, int screenH);
 	void Initialize(int seed);
 	void InitRandom(int seed);
@@ -22,6 +23,7 @@ public:
 	float GetPixelAverageCPU(sf::RenderTexture& renderTexture);
 	void DrawMSETexture(sf::Shader& squaredErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt);
 
+	std::pair<TriangleSet, TriangleSet> CrossBreed(const TriangleSet* otherParent);
 	TriangleSet GenerateOffspring();
 	void Mutate();
 	void MutateVertexValue(int t, int p);
@@ -34,6 +36,7 @@ public:
 	
 	std::uniform_real_distribution<float> m_triValDist;
 	std::uniform_int_distribution<uint32_t> m_colorDist;
+	std::uniform_int_distribution<int> m_crossOverDist;
 	std::uniform_real_distribution<float> m_mutTriDist;
 	std::uniform_int_distribution<int> m_mutValDist;
 	std::uniform_int_distribution<int> m_mutPosBitDist;

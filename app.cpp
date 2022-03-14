@@ -143,9 +143,16 @@ void App::CreateOffspring()
 
 	std::vector<TriangleSet> offspring(GEN_SIZE);
 
-	for (int i = 0; i < GEN_SIZE / 2; i++) {
-		offspring[i * 2] = m_triangleSets[m_fitnessRanking[i].first].GenerateOffspring();
-		offspring[i * 2 + 1] = m_triangleSets[m_fitnessRanking[i].first].GenerateOffspring();
+	for (int i = 0; i < GEN_SIZE / 4; i++) {
+		TriangleSet* t1 = &m_triangleSets[m_fitnessRanking[2*i].first];
+		TriangleSet* t2 = &m_triangleSets[m_fitnessRanking[2*i+1].first];
+
+		auto crossBreedPair1 = t1->CrossBreed(t2);
+		auto crossBreedPair2 = t1->CrossBreed(t2);
+		offspring[i * 4] = crossBreedPair1.first;
+		offspring[i * 4 + 1] = crossBreedPair1.second;
+		offspring[i * 4 + 2] = crossBreedPair2.second;
+		offspring[i * 4 + 3] = crossBreedPair2.second;
 	}
 
 	m_triangleSets = offspring;

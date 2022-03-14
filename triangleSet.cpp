@@ -11,6 +11,7 @@ TriangleSet::TriangleSet(const TriangleSet* triSet)
 
 	m_triValDist = triSet->m_triValDist;
 	m_colorDist = triSet->m_colorDist;
+	m_crossOverDist = triSet->m_crossOverDist;
 	m_mutTriDist = triSet->m_mutTriDist;
 	m_mutValDist = triSet->m_mutValDist;
 	m_mutPosBitDist = triSet->m_mutPosBitDist;
@@ -19,8 +20,37 @@ TriangleSet::TriangleSet(const TriangleSet* triSet)
 	m_triangles.clear();
 	m_triangles.reserve(N_TRIANGLES);
 	for (int i = 0; i < triSet->m_triangles.size(); i++) {
-		sf::ConvexShape tri_copy = triSet->m_triangles[i];
+		const sf::ConvexShape tri_copy = triSet->m_triangles[i];
 		m_triangles.push_back(tri_copy);
+	}
+}
+
+TriangleSet::TriangleSet(const TriangleSet* p1, const TriangleSet* p2, int crossOverIndex)
+{
+	m_gen = p1->m_gen;
+
+	m_screenW = p1->m_screenW;
+	m_screenH = p1->m_screenH;
+
+	m_triValDist = p1->m_triValDist;
+	m_colorDist = p1->m_colorDist;
+	m_crossOverDist = p1->m_crossOverDist;
+	m_mutTriDist = p1->m_mutTriDist;
+	m_mutValDist = p1->m_mutValDist;
+	m_mutPosBitDist = p1->m_mutPosBitDist;
+	m_mutColBitDist = p1->m_mutColBitDist;
+
+	m_triangles.clear();
+	m_triangles.reserve(N_TRIANGLES);
+	for (int i = 0; i < N_TRIANGLES; i++) {
+		if (i < crossOverIndex) {
+			const sf::ConvexShape tri_copy = p1->m_triangles[i];
+			m_triangles.push_back(tri_copy);
+		}
+		else {
+			const sf::ConvexShape tri_copy = p2->m_triangles[i];
+			m_triangles.push_back(tri_copy);
+		}
 	}
 }
 
@@ -45,6 +75,7 @@ void TriangleSet::InitRandom(int seed)
 
 	m_triValDist = std::uniform_real_distribution<float>(0.f, 1.f);
 	m_colorDist = std::uniform_int_distribution<uint32_t>(0, UINT32_MAX);
+	m_crossOverDist = std::uniform_int_distribution<int>(0, N_TRIANGLES);
 	m_mutTriDist = std::uniform_real_distribution<float>(0.f, 1.f);
 	m_mutValDist = std::uniform_int_distribution<int>(0, 10); // 10 values in a triangle
 	m_mutPosBitDist = std::uniform_int_distribution<int>(0, N_VALBITS - 1);
@@ -144,6 +175,19 @@ void TriangleSet::DrawMSETexture(sf::Shader& squaredErrorShader, sf::Sprite& tar
 	squaredErrorShader.setUniform("triangleImgTexture", triangleImageTexture.getTexture());
 
 	rt.draw(targetImageSprite, &squaredErrorShader);
+}
+
+std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* otherParent)
+{
+	int crossOverIndex = m_crossOverDist(m_gen);
+
+	TriangleSet c1 = TriangleSet(this, otherParent, crossOverIndex);
+	TriangleSet c2 = TriangleSet(otherParent, this, crossOverIndex);
+
+	c1.Mutate();
+	c2.Mutate();
+
+	return std::pair<TriangleSet, TriangleSet>(c1, c2);
 }
 
 TriangleSet TriangleSet::GenerateOffspring()
