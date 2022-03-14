@@ -3,8 +3,8 @@
 
 // APP
 constexpr char TARGET_IMG_PATH[] = "images/src/";
-constexpr char TARGET_IMG_FNAME[] = "sunset.jpg";
-constexpr int SEED = 0;
+constexpr char TARGET_IMG_FNAME[] = "monalisa.jpg";
+constexpr int SEED = 1;
 constexpr bool SET_SEED = true;
 
 // EVOLUTIONARY ALGORITHM
