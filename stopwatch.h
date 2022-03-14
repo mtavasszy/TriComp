@@ -2,41 +2,25 @@
 #define STOPWATCH_H_
 
 #include <chrono>
-#include <iostream>
 
-template <typename Clock = std::chrono::steady_clock>
-class stopwatch
+class Stopwatch
 {
-    typename Clock::time_point last_;
-
 public:
-    stopwatch()
-        : last_(Clock::now())
-    {}
 
-    void reset()
-    {
-        *this = stopwatch();
+    Stopwatch() {
+        m_start = std::chrono::steady_clock::now();
     }
 
-    typename Clock::duration elapsed() const
+    long long reset()
     {
-        return Clock::now() - last_;
+        auto stop = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - m_start);
+        m_start = std::chrono::steady_clock::now();
+        return duration.count();
     }
 
-    typename Clock::duration tick()
-    {
-        auto now = Clock::now();
-        auto elapsed = now - last_;
-        last_ = now;
-        return elapsed;
-    }
+private:
+    std::chrono::steady_clock::time_point m_start;
 };
-
-template <typename T, typename Rep, typename Period>
-T duration_cast(const std::chrono::duration<Rep, Period>& duration)
-{
-    return duration.count() * static_cast<T>(Period::num) / static_cast<T>(Period::den);
-}
 
 #endif // !STOPWATCH_H_

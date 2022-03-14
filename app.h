@@ -43,6 +43,8 @@ private:
 	TriangleSet m_bestTriangleSet;
 	float m_bestMSE;
 
+	int n_iterations = 0;
+
 	std::vector<TriangleSet> m_triangleSets;
 	std::vector<std::pair<int, float>> m_fitnessRanking;
 };

@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "config.h"
+#include "stopwatch.h"
 
 App::App() {}
 
@@ -90,6 +91,7 @@ void App::InitWindow()
 void App::InitTriSets()
 {
 	std::cout << "Generating " << GEN_SIZE << " random triangle sets...\n";
+	Stopwatch sw;
 
 	m_bestMSE = FLT_MAX;
 
@@ -100,14 +102,21 @@ void App::InitTriSets()
 		m_triangleSets.push_back(TriangleSet(m_seedDist(m_gen), m_screenW, m_screenH));
 	}
 
-	std::cout << "Generating completed!\n";
+	std::cout << "Triset initialization completed! It took " << sw.reset() << "ms\n";
 }
 
 void App::Update()
 {
+	Stopwatch sw;
+
 	RunGeneration();
 	SetBest();
 	CreateOffspring();
+
+	std::cout << "\n---------------\n";
+	std::cout << "Iteration " << ++n_iterations << " finished, total time was " << sw.reset() << " ms\n";
+	std::cout << "Lowest MSE so far is " << m_bestMSE << "\n";
+	std::cout << "---------------\n\n";
 }
 
 bool FitnessSortComp(const std::pair<int, float> f0, const std::pair<int, float> f1)
@@ -118,6 +127,7 @@ bool FitnessSortComp(const std::pair<int, float> f0, const std::pair<int, float>
 void App::RunGeneration()
 {
 	std::cout << "Computing triangle set MSE...\n";
+	Stopwatch sw;
 
 	m_fitnessRanking.clear();
 	m_fitnessRanking.reserve(GEN_SIZE);
@@ -127,12 +137,12 @@ void App::RunGeneration()
 		m_fitnessRanking.push_back(std::pair<int, float>(i, fitness));
 	}
 
-	std::cout << "All triangle sets evaluated!\n";
+	std::cout << "All triangle sets evaluated! It took " << sw.reset() << " ms\n";
 	std::cout << "Sorting on MSE...\n";
 
 	std::sort(m_fitnessRanking.begin(), m_fitnessRanking.end(), FitnessSortComp);
 
-	std::cout << "Sorting completed!\n";
+	std::cout << "Sorting completed! It took " << sw.reset() << " ms\n";
 }
 
 
@@ -140,6 +150,7 @@ void App::RunGeneration()
 void App::CreateOffspring()
 {
 	std::cout << "Creating offspring...\n";
+	Stopwatch sw;
 
 	std::vector<TriangleSet> offspring(GEN_SIZE);
 
@@ -154,13 +165,12 @@ void App::CreateOffspring()
 
 	m_triangleSets = offspring;
 
-	std::cout << "Offspring generated!\n";
+	std::cout << "Offspring generated! It took " << sw.reset() << " ms\n";
 }
 
 void App::SetBest()
 {
 	int bestTriSetId = m_fitnessRanking[0].first;
-	std::cout << "Best creature so far has a MSE of " << m_bestMSE << "\n";
 	std::cout << "Best creature of this generation is " << bestTriSetId << " with a MSE of " << m_fitnessRanking[0].second << "\n";
 
 	if (m_fitnessRanking[0].second < m_bestMSE) {
