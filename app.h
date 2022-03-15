@@ -35,6 +35,8 @@ private:
 	int m_maxMipmapLvl;
 	sf::RenderTexture m_smolRenderTexture;
 	sf::Sprite m_smolSprite;
+	sf::RenderTexture m_triangleImageTexture;
+	sf::RenderTexture m_absErrorTexture;
 
 	sf::Image m_targetImage;
 	sf::Texture m_targetImageTexture;

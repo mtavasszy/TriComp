@@ -69,6 +69,11 @@ void App::LoadImageAndTextures()
 
 	m_smolRenderTexture.create(1, 1);
 	m_smolSprite = sf::Sprite(m_smolRenderTexture.getTexture());
+
+	m_triangleImageTexture.create(m_screenW, m_screenH);
+
+	m_absErrorTexture.create(m_screenW, m_screenH);
+
 }
 
 void App::LoadShaders()
@@ -136,7 +141,7 @@ void App::RunGeneration()
 	m_fitnessRanking.reserve(GEN_SIZE);
 
 	for (int i = 0; i < m_triangleSets.size(); i++) {
-		const float fitness = m_triangleSets[i].GetMSE(m_absErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite, m_smolRenderTexture, m_smolSprite);
+		const float fitness = m_triangleSets[i].GetAbsoluteError(m_absErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite, m_smolRenderTexture, m_smolSprite, m_triangleImageTexture, m_absErrorTexture);
 		m_fitnessRanking.push_back(std::pair<int, float>(i, fitness));
 	}
 

@@ -73,16 +73,27 @@ void TriangleSet::InitTriangles()
 	}
 }
 
-float TriangleSet::GetMSE(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite, sf::RenderTexture& smolRenderTexture, sf::Sprite smolSprite)
+float TriangleSet::GetAbsoluteError(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite, sf::RenderTexture& smolRenderTexture, sf::Sprite smolSprite, sf::RenderTexture& triangleRenderTexture, sf::RenderTexture& absErrorTexture)
 {
 	// get per-pixel absolute error between target and generated
-	sf::RenderTexture absErrorTexture;
-	absErrorTexture.create(m_screenW, m_screenH);
-	DrawMSETexture(absErrorShader, targetImageSprite, absErrorTexture);
+	DrawAbsErrorTexture(absErrorShader, targetImageSprite, absErrorTexture, triangleRenderTexture);
 
 	float pixelAvg = GetPixelAverageMipMap(getMipMapVal, maxMipmapLvl, absErrorTexture, smolRenderTexture, smolSprite);
 
 	return pixelAvg;
+}
+
+void TriangleSet::DrawAbsErrorTexture(sf::Shader& absErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& absErrorRenderTexture, sf::RenderTexture& triangleRenderTexture)
+{
+	absErrorRenderTexture.clear(sf::Color::Black);
+	triangleRenderTexture.clear(sf::Color::Black);
+
+	DrawRenderTexture(triangleRenderTexture);
+
+	absErrorShader.setUniform("targetImgTexture", sf::Shader::CurrentTexture);
+	absErrorShader.setUniform("triangleImgTexture", triangleRenderTexture.getTexture());
+
+	absErrorRenderTexture.draw(targetImageSprite, &absErrorShader);
 }
 
 void TriangleSet::DrawRenderTexture(sf::RenderTexture& rt)
@@ -104,24 +115,11 @@ float TriangleSet::GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmap
 	smolRenderTexture.draw(smolSprite, &getMipMapVal);
 
 	// copy 1x1 texture to cpu and retrieve value
-	sf::Image avgMSEImage = smolRenderTexture.getTexture().copyToImage();
-	sf::Color resultMipMap = avgMSEImage.getPixel(0, 0);
+	sf::Image avgErrorImage;
+	avgErrorImage = smolRenderTexture.getTexture().copyToImage();
+	sf::Color resultMipMap = avgErrorImage.getPixel(0, 0);
 
 	return float(resultMipMap.r + resultMipMap.g + resultMipMap.b);
-}
-
-void TriangleSet::DrawMSETexture(sf::Shader& absErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt)
-{
-	rt.clear(sf::Color::Black);
-
-	sf::RenderTexture triangleImageTexture;
-	triangleImageTexture.create(m_screenW, m_screenH);
-	DrawRenderTexture(triangleImageTexture);
-
-	absErrorShader.setUniform("targetImgTexture", sf::Shader::CurrentTexture);
-	absErrorShader.setUniform("triangleImgTexture", triangleImageTexture.getTexture());
-
-	rt.draw(targetImageSprite, &absErrorShader);
 }
 
 std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* otherParent)
