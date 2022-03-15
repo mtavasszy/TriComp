@@ -7,6 +7,17 @@
 #include "Vec2.h"
 #include <random>
 
+struct TriSetErrorCompPackage {
+	sf::Shader absErrorShader;
+	sf::Shader getMipmapValShader;
+	int maxMipmapLvl;
+	sf::RenderTexture smolRenderTexture;
+	sf::Sprite smolSprite;
+	sf::RenderTexture triangleRenderTexture;
+	sf::RenderTexture absErrorRenderTexture;
+	sf::Sprite targetImageSprite;
+};
+
 class TriangleSet {
 public:
 	TriangleSet();
@@ -16,10 +27,10 @@ public:
 	void InitRandom(int seed);
 	void InitTriangles();
 
-	float GetAbsoluteError(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite, sf::RenderTexture& smolRenderTexture, sf::Sprite smolSprite, sf::RenderTexture& triangleRenderTexture, sf::RenderTexture& absErrorTexture);
-	void DrawAbsErrorTexture(sf::Shader& absErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& absErrorRenderTexture, sf::RenderTexture& triangleRenderTexture);
+	float GetAbsoluteError(TriSetErrorCompPackage& triSetErrorCompPackage);
+	void DrawAbsErrorTexture(TriSetErrorCompPackage& triSetErrorCompPackage);
 	void DrawRenderTexture(sf::RenderTexture& rt);
-	float GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& renderTexture, sf::RenderTexture& smolRenderTexture, sf::Sprite smolSprite);
+	float GetPixelAverageMipMap(TriSetErrorCompPackage& triSetErrorCompPackage);
 
 	std::pair<TriangleSet, TriangleSet> CrossBreed(const TriangleSet* otherParent);
 	void Mutate();

@@ -30,21 +30,16 @@ private:
 	int m_screenW, m_screenH;
 
 	sf::RenderWindow m_window;
-	sf::Shader m_absErrorShader;
-	sf::Shader m_getMipmapValShader;
-	int m_maxMipmapLvl;
-	sf::RenderTexture m_smolRenderTexture;
-	sf::Sprite m_smolSprite;
-	sf::RenderTexture m_triangleImageTexture;
-	sf::RenderTexture m_absErrorTexture;
 
-	sf::Image m_targetImage;
+	TriSetErrorCompPackage m_triSetErrorCompPackage;
+
 	sf::Texture m_targetImageTexture;
-	sf::Sprite m_targetImageSprite;
+	sf::Image m_targetImage;
 
 	sf::RenderTexture m_bestRenderTexture;
 	sf::Sprite m_bestImageSprite;
 	TriangleSet m_bestTriangleSet;
+
 	float m_lowestError;
 
 	int n_iterations = 0;

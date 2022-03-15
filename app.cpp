@@ -58,31 +58,31 @@ void App::LoadImageAndTextures()
 	m_screenW = m_targetImage.getSize().x;
 	m_screenH = m_targetImage.getSize().y;
 
-	m_maxMipmapLvl = int(std::log2(std::max(m_screenW, m_screenH)));
+	m_triSetErrorCompPackage.maxMipmapLvl = int(std::log2(std::max(m_screenW, m_screenH)));
 
 	m_targetImageTexture.loadFromImage(m_targetImage);
-	m_targetImageSprite.setTexture(m_targetImageTexture, true);
+	m_triSetErrorCompPackage.targetImageSprite.setTexture(m_targetImageTexture, true);
 
 	m_bestRenderTexture.create(m_targetImage.getSize().x, m_targetImage.getSize().y);
 	m_bestImageSprite.setTexture(m_bestRenderTexture.getTexture(), true);
 	m_bestImageSprite.setPosition(sf::Vector2f(float(m_targetImage.getSize().x), 0.f));
 
-	m_smolRenderTexture.create(1, 1);
-	m_smolSprite = sf::Sprite(m_smolRenderTexture.getTexture());
+	m_triSetErrorCompPackage.smolRenderTexture.create(1, 1);
+	m_triSetErrorCompPackage.smolSprite = sf::Sprite(m_triSetErrorCompPackage.smolRenderTexture.getTexture());
 
-	m_triangleImageTexture.create(m_screenW, m_screenH);
+	m_triSetErrorCompPackage.triangleRenderTexture.create(m_screenW, m_screenH);
 
-	m_absErrorTexture.create(m_screenW, m_screenH);
+	m_triSetErrorCompPackage.absErrorRenderTexture.create(m_screenW, m_screenH);
 
 }
 
 void App::LoadShaders()
 {
-	if (!m_absErrorShader.loadFromFile("absError.glsl", sf::Shader::Fragment))
+	if (!m_triSetErrorCompPackage.absErrorShader.loadFromFile("absError.glsl", sf::Shader::Fragment))
 	{
 		exit(-1);
 	}
-	if (!m_getMipmapValShader.loadFromFile("getMipmapVal.glsl", sf::Shader::Fragment))
+	if (!m_triSetErrorCompPackage.getMipmapValShader.loadFromFile("getMipmapVal.glsl", sf::Shader::Fragment))
 	{
 		exit(-1);
 	}
@@ -141,7 +141,7 @@ void App::RunGeneration()
 	m_fitnessRanking.reserve(GEN_SIZE);
 
 	for (int i = 0; i < m_triangleSets.size(); i++) {
-		const float fitness = m_triangleSets[i].GetAbsoluteError(m_absErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite, m_smolRenderTexture, m_smolSprite, m_triangleImageTexture, m_absErrorTexture);
+		const float fitness = m_triangleSets[i].GetAbsoluteError(m_triSetErrorCompPackage);
 		m_fitnessRanking.push_back(std::pair<int, float>(i, fitness));
 	}
 
@@ -193,7 +193,7 @@ void App::Draw()
 {
 	m_window.clear();
 
-	m_window.draw(m_targetImageSprite);
+	m_window.draw(m_triSetErrorCompPackage.targetImageSprite);
 	m_window.draw(m_bestImageSprite);
 
 	m_window.display();
