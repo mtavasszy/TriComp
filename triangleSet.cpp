@@ -124,10 +124,8 @@ float TriangleSet::GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmap
 
 std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* otherParent)
 {
-	int crossOverIndex = m_crossOverDist(m_gen);
-
-	TriangleSet c1 = TriangleSet(this, otherParent, crossOverIndex);
-	TriangleSet c2 = TriangleSet(otherParent, this, crossOverIndex);
+	TriangleSet c1 = TriangleSet(this, otherParent, m_crossOverDist(m_gen));
+	TriangleSet c2 = TriangleSet(otherParent, this, m_crossOverDist(m_gen));
 
 	c1.Mutate();
 	c2.Mutate();
