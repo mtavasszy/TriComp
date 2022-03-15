@@ -1,5 +1,7 @@
 #version 120
 
+#define ERROR_MULTIPLIER 10.f
+
 uniform sampler2D targetImgTexture;
 uniform sampler2D triangleImgTexture;
 
@@ -13,5 +15,5 @@ void main()
 
     vec3 error = targetImgVal.xyz * targetImgVal.w - triangleImgVal.xyz * triangleImgVal.w;
 
-    gl_FragColor = vec4(abs(error), 1.f);
+    gl_FragColor = vec4(abs(error) * ERROR_MULTIPLIER, 1.f);
 }
