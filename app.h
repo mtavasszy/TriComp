@@ -14,7 +14,7 @@ public:
 private:
 	void Initialize();
 	void InitRandom();
-	void LoadImage();
+	void LoadImageAndTextures();
 	void LoadShaders();
 	void InitWindow();
 	void InitTriSets();
@@ -33,6 +33,8 @@ private:
 	sf::Shader m_absErrorShader;
 	sf::Shader m_getMipmapValShader;
 	int m_maxMipmapLvl;
+	sf::RenderTexture m_smolRenderTexture;
+	sf::Sprite m_smolSprite;
 
 	sf::Image m_targetImage;
 	sf::Texture m_targetImageTexture;

@@ -29,7 +29,7 @@ void App::Run()
 void App::Initialize()
 {
 	InitRandom();
-	LoadImage();
+	LoadImageAndTextures();
 	LoadShaders();
 	InitWindow();
 	InitTriSets();
@@ -48,7 +48,7 @@ void App::InitRandom()
 	m_seedDist = std::uniform_int_distribution<int>(0, INT_MAX);
 }
 
-void App::LoadImage()
+void App::LoadImageAndTextures()
 {
 	std::string fname = std::string(TARGET_IMG_PATH) + std::string(TARGET_IMG_FNAME);
 	if (!m_targetImage.loadFromFile(fname))
@@ -66,6 +66,9 @@ void App::LoadImage()
 	m_bestRenderTexture.create(m_targetImage.getSize().x, m_targetImage.getSize().y);
 	m_bestImageSprite.setTexture(m_bestRenderTexture.getTexture(), true);
 	m_bestImageSprite.setPosition(sf::Vector2f(float(m_targetImage.getSize().x), 0.f));
+
+	m_smolRenderTexture.create(1, 1);
+	m_smolSprite = sf::Sprite(m_smolRenderTexture.getTexture());
 }
 
 void App::LoadShaders()
@@ -133,7 +136,7 @@ void App::RunGeneration()
 	m_fitnessRanking.reserve(GEN_SIZE);
 
 	for (int i = 0; i < m_triangleSets.size(); i++) {
-		const float fitness = m_triangleSets[i].GetMSE(m_absErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite);
+		const float fitness = m_triangleSets[i].GetMSE(m_absErrorShader, m_getMipmapValShader, m_maxMipmapLvl, m_targetImageSprite, m_smolRenderTexture, m_smolSprite);
 		m_fitnessRanking.push_back(std::pair<int, float>(i, fitness));
 	}
 

@@ -16,9 +16,9 @@ public:
 	void InitRandom(int seed);
 	void InitTriangles();
 
-	float GetMSE(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite);
+	float GetMSE(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite, sf::RenderTexture& smolRenderTexture, sf::Sprite smolSprite);
 	void DrawRenderTexture(sf::RenderTexture& rt);
-	float GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& renderTexture);
+	float GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& renderTexture, sf::RenderTexture& smolRenderTexture, sf::Sprite smolSprite);
 	void DrawMSETexture(sf::Shader& absErrorShader, sf::Sprite& targetImageSprite, sf::RenderTexture& rt);
 
 	std::pair<TriangleSet, TriangleSet> CrossBreed(const TriangleSet* otherParent);

@@ -73,14 +73,14 @@ void TriangleSet::InitTriangles()
 	}
 }
 
-float TriangleSet::GetMSE(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite)
+float TriangleSet::GetMSE(sf::Shader& absErrorShader, sf::Shader& getMipMapVal, int maxMipmapLvl, sf::Sprite& targetImageSprite, sf::RenderTexture& smolRenderTexture, sf::Sprite smolSprite)
 {
 	// get per-pixel absolute error between target and generated
 	sf::RenderTexture absErrorTexture;
 	absErrorTexture.create(m_screenW, m_screenH);
 	DrawMSETexture(absErrorShader, targetImageSprite, absErrorTexture);
 
-	float pixelAvg = GetPixelAverageMipMap(getMipMapVal, maxMipmapLvl, absErrorTexture);
+	float pixelAvg = GetPixelAverageMipMap(getMipMapVal, maxMipmapLvl, absErrorTexture, smolRenderTexture, smolSprite);
 
 	return pixelAvg;
 }
@@ -93,25 +93,18 @@ void TriangleSet::DrawRenderTexture(sf::RenderTexture& rt)
 	}
 }
 
-float TriangleSet::GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& absErrorRenderTexture)
+float TriangleSet::GetPixelAverageMipMap(sf::Shader& getMipMapVal, int maxMipmapLvl, sf::RenderTexture& absErrorRenderTexture, sf::RenderTexture& smolRenderTexture, sf::Sprite smolSprite)
 {
 	// get mean absolute average by averaging all pixels in the absError texture
 	absErrorRenderTexture.generateMipmap();
 
-	sf::Sprite absErrorSprite;
-	absErrorSprite.setTexture(absErrorRenderTexture.getTexture());
-
 	// copy the lowest level mipmap value into a 1x1 texture 
-	sf::RenderTexture avgMSETexture;
-	avgMSETexture.create(1, 1);
-
-	getMipMapVal.setUniform("mipmapTexture", sf::Shader::CurrentTexture);
+	getMipMapVal.setUniform("mipmapTexture", absErrorRenderTexture.getTexture());
 	getMipMapVal.setUniform("maxMipmapLvl", maxMipmapLvl);
-
-	avgMSETexture.draw(absErrorSprite, &getMipMapVal);
+	smolRenderTexture.draw(smolSprite, &getMipMapVal);
 
 	// copy 1x1 texture to cpu and retrieve value
-	sf::Image avgMSEImage = avgMSETexture.getTexture().copyToImage();
+	sf::Image avgMSEImage = smolRenderTexture.getTexture().copyToImage();
 	sf::Color resultMipMap = avgMSEImage.getPixel(0, 0);
 
 	return float(resultMipMap.r + resultMipMap.g + resultMipMap.b);
