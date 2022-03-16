@@ -15,5 +15,7 @@ void main()
 
     vec3 error = targetImgVal.xyz * targetImgVal.w - triangleImgVal.xyz * triangleImgVal.w;
 
-    gl_FragColor = vec4(abs(error) * ERROR_MULTIPLIER, 1.f);
+    vec3 squaredError = error*error;
+
+    gl_FragColor = vec4(squaredError * ERROR_MULTIPLIER, 1.f);
 }

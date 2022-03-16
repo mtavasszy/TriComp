@@ -127,7 +127,7 @@ void App::Update()
 	CreateOffspring();
 
 	std::cout << "\n---------------\n";
-	std::cout << "Iteration " << ++n_iterations << " finished, total time was " << sw.reset() << " ms\n";
+	std::cout << "Iteration " << ++m_iterations << " finished, total time was " << sw.reset() << " ms\n";
 	std::cout << "Lowest error so far is " << m_lowestError << "\n";
 	std::cout << "---------------\n\n";
 }

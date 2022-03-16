@@ -46,7 +46,7 @@ private:
 
 	float m_lowestError;
 
-	int n_iterations = 0;
+	int m_iterations = 0;
 
 	std::vector<TriangleSet> m_triangleSets;
 	std::vector<std::pair<int, float>> m_fitnessRanking;
