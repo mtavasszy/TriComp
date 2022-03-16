@@ -6,8 +6,8 @@ TriangleSet::TriangleSet(const TriangleSet* p1, const TriangleSet* p2, int cross
 {
 	m_gen = p1->m_gen;
 
-	m_screenW = p1->m_screenW;
-	m_screenH = p1->m_screenH;
+	m_imageW = p1->m_imageW;
+	m_imageH = p1->m_imageH;
 
 	m_triValDist = p1->m_triValDist;
 	m_colorDist = p1->m_colorDist;
@@ -33,8 +33,8 @@ TriangleSet::TriangleSet(const TriangleSet* p1, const TriangleSet* p2, int cross
 
 TriangleSet::TriangleSet(int seed, int screenW, int screenH)
 {
-	m_screenW = screenW;
-	m_screenH = screenH;
+	m_imageW = screenW;
+	m_imageH = screenH;
 	Initialize(seed);
 }
 
@@ -65,9 +65,9 @@ void TriangleSet::InitTriangles()
 
 	for (int i = 0; i < N_TRIANGLES; i++) {
 		sf::ConvexShape tri = sf::ConvexShape(3);
-		tri.setPoint(0, sf::Vector2f(m_triValDist(m_gen) * float(m_screenW), m_triValDist(m_gen) * float(m_screenH)));
-		tri.setPoint(1, sf::Vector2f(m_triValDist(m_gen) * float(m_screenW), m_triValDist(m_gen) * float(m_screenH)));
-		tri.setPoint(2, sf::Vector2f(m_triValDist(m_gen) * float(m_screenW), m_triValDist(m_gen) * float(m_screenH)));
+		tri.setPoint(0, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
+		tri.setPoint(1, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
+		tri.setPoint(2, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
 		tri.setFillColor(sf::Color(m_colorDist(m_gen)));
 		m_triangles.push_back(tri);
 	}
@@ -162,16 +162,16 @@ sf::Vector2f TriangleSet::MutatePosition(sf::Vector2f vec, bool isX)
 	int bit = m_mutPosBitDist(m_gen);
 
 	if (isX) {
-		uint8_t val_int = uint8_t(((vec.x / float(m_screenW)) * 255.f) + 0.5f);
+		uint8_t val_int = uint8_t(((vec.x / float(m_imageW)) * 255.f) + 0.5f);
 		val_int ^= uint8_t(1) << bit;
-		auto newVec = sf::Vector2f((float(val_int) / 255.f) * float(m_screenW), vec.y);
-		return sf::Vector2f((float(val_int) / 255.f) * float(m_screenW), vec.y);
+		auto newVec = sf::Vector2f((float(val_int) / 255.f) * float(m_imageW), vec.y);
+		return sf::Vector2f((float(val_int) / 255.f) * float(m_imageW), vec.y);
 	}
 	else {
-		uint8_t val_int = uint8_t(((vec.y / float(m_screenH)) * 255.f) + 0.5f);
+		uint8_t val_int = uint8_t(((vec.y / float(m_imageH)) * 255.f) + 0.5f);
 		val_int ^= uint8_t(1) << bit;
-		auto newVec = sf::Vector2f(vec.x, (float(val_int) / 255.f) * float(m_screenH));
-		return sf::Vector2f(vec.x, (float(val_int) / 255.f) * float(m_screenH));
+		auto newVec = sf::Vector2f(vec.x, (float(val_int) / 255.f) * float(m_imageH));
+		return sf::Vector2f(vec.x, (float(val_int) / 255.f) * float(m_imageH));
 	}
 }
 

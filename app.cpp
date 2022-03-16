@@ -55,13 +55,16 @@ void App::LoadImageAndTextures()
 	{
 		exit(-1);
 	}
-	m_screenW = m_targetImage.getSize().x;
-	m_screenH = m_targetImage.getSize().y;
+	m_imageW = m_targetImage.getSize().x;
+	m_imageH = m_targetImage.getSize().y;
 
-	m_triSetErrorCompPackage.maxMipmapLvl = int(std::log2(std::max(m_screenW, m_screenH)));
+	m_screenW = m_imageW * 2;
+	m_screenH = m_imageH + STATISTICS_VIEW_H;
 
-	m_targetImageTexture.loadFromImage(m_targetImage);
-	m_triSetErrorCompPackage.targetImageSprite.setTexture(m_targetImageTexture, true);
+	m_triSetErrorCompPackage.maxMipmapLvl = int(std::log2(std::max(m_imageW, m_imageH)));
+
+	m_targetTexture.loadFromImage(m_targetImage);
+	m_triSetErrorCompPackage.targetImageSprite.setTexture(m_targetTexture, true);
 
 	m_bestRenderTexture.create(m_targetImage.getSize().x, m_targetImage.getSize().y);
 	m_bestImageSprite.setTexture(m_bestRenderTexture.getTexture(), true);
@@ -70,10 +73,12 @@ void App::LoadImageAndTextures()
 	m_triSetErrorCompPackage.smolRenderTexture.create(1, 1);
 	m_triSetErrorCompPackage.smolSprite = sf::Sprite(m_triSetErrorCompPackage.smolRenderTexture.getTexture());
 
-	m_triSetErrorCompPackage.triangleRenderTexture.create(m_screenW, m_screenH);
+	m_triSetErrorCompPackage.triangleRenderTexture.create(m_imageW, m_imageH);
+	m_triSetErrorCompPackage.absErrorRenderTexture.create(m_imageW, m_imageH);
 
-	m_triSetErrorCompPackage.absErrorRenderTexture.create(m_screenW, m_screenH);
-
+	m_statisticsRenderTexture.create(m_screenW, STATISTICS_VIEW_H);
+	m_statisticsSprite.setTexture(m_statisticsRenderTexture.getTexture());
+	m_statisticsSprite.setPosition(sf::Vector2f(0.f, float(m_imageH)));
 }
 
 void App::LoadShaders()
@@ -92,8 +97,7 @@ void App::InitWindow()
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
-
-	m_window.create(sf::VideoMode(m_screenW * 2, m_screenH), "TriComp", sf::Style::Default, settings);
+	m_window.create(sf::VideoMode(m_screenW, m_screenH), "TriComp", sf::Style::Default, settings);
 }
 
 void App::InitTriSets()
@@ -107,7 +111,7 @@ void App::InitTriSets()
 	m_triangleSets.reserve(GEN_SIZE);
 
 	for (int i = 0; i < GEN_SIZE; i++) {
-		m_triangleSets.push_back(TriangleSet(m_seedDist(m_gen), m_screenW, m_screenH));
+		m_triangleSets.push_back(TriangleSet(m_seedDist(m_gen), m_imageW, m_imageH));
 	}
 
 	std::cout << "Triset initialization completed! It took " << sw.reset() << "ms\n";
@@ -119,6 +123,7 @@ void App::Update()
 
 	RunGeneration();
 	SetBest();
+	RecordStatistics();
 	CreateOffspring();
 
 	std::cout << "\n---------------\n";
@@ -152,8 +157,6 @@ void App::RunGeneration()
 
 	std::cout << "Sorting completed! It took " << sw.reset() << " ms\n";
 }
-
-
 
 void App::CreateOffspring()
 {
@@ -189,6 +192,11 @@ void App::SetBest()
 	m_bestTriangleSet.DrawRenderTexture(m_bestRenderTexture);
 }
 
+void App::RecordStatistics()
+{
+	m_statistics.push_back(StatisticPoint{ m_fitnessRanking[0].second, m_fitnessRanking[GEN_SIZE / 2].second, m_fitnessRanking[GEN_SIZE - 1].second });
+}
+
 void App::Draw()
 {
 	m_window.clear();
@@ -196,5 +204,55 @@ void App::Draw()
 	m_window.draw(m_triSetErrorCompPackage.targetImageSprite);
 	m_window.draw(m_bestImageSprite);
 
+	DrawStatistics();
+	m_window.draw(m_statisticsSprite);
+
 	m_window.display();
+}
+
+void App::DrawStatistics()
+{
+	m_statisticsRenderTexture.clear(sf::Color(42, 42, 44));
+
+	// get min/max
+	float minError = FLT_MAX;
+	float maxError = -FLT_MAX;
+	for (int i = 0; i < m_statistics.size(); i++) {
+		minError = std::min(minError, m_statistics[i].minError);
+		maxError = std::max(maxError, m_statistics[i].minError); // todo make maxerror when plotting all
+	}
+
+	// draw axes
+
+
+	// draw text
+
+
+	// draw
+	if (m_statistics.size() > 1) {
+		
+		
+		float stepSize_x = float(m_screenW - 2 * STATISTICS_GRAPH_MARGIN_W) / float(m_statistics.size());
+		float stepSize_y = float(STATISTICS_VIEW_H - 2 * STATISTICS_GRAPH_MARGIN_H) / (maxError - minError);
+
+		for (int i = 0; i < m_statistics.size() - 1; i++) {
+
+			float x1 = STATISTICS_GRAPH_MARGIN_W + i * stepSize_x;
+			float x2 = STATISTICS_GRAPH_MARGIN_W + (i + 1) * stepSize_x;
+			float y1 = STATISTICS_VIEW_H - (STATISTICS_GRAPH_MARGIN_H + (m_statistics[i].minError - minError) * stepSize_y);
+			float y2 = STATISTICS_VIEW_H - (STATISTICS_GRAPH_MARGIN_H + (m_statistics[i + 1].minError - minError) * stepSize_y);
+
+			sf::Vertex line[] =
+			{
+				sf::Vertex(sf::Vector2f(x1, y1), sf::Color::White),
+				sf::Vertex(sf::Vector2f(x2, y2), sf::Color::White)
+			};
+
+			m_statisticsRenderTexture.draw(line, 2, sf::Lines);
+		}
+	}
+	m_statisticsRenderTexture.display();
+	m_statisticsSprite.setTexture(m_statisticsRenderTexture.getTexture(), true);
+	// draw to window
+	//m_window.draw(m_statisticsSprite);
 }

@@ -40,7 +40,7 @@ public:
 
 	std::mt19937 m_gen;
 	
-	int m_screenW, m_screenH;
+	int m_imageW, m_imageH;
 	
 	std::uniform_real_distribution<float> m_triValDist;
 	std::uniform_int_distribution<uint32_t> m_colorDist;

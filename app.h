@@ -5,6 +5,7 @@
 #include <vector>
 #include <random>
 #include "triangleSet.h"
+#include "statistic.h"
 
 class App {
 public:
@@ -22,18 +23,21 @@ private:
 	void RunGeneration();
 	void CreateOffspring();
 	void SetBest();
+	void RecordStatistics();
 	void Draw();
+	void DrawStatistics();
 
 	std::mt19937 m_gen;
 	std::uniform_int_distribution<int> m_seedDist;
 
+	int m_imageW, m_imageH;
 	int m_screenW, m_screenH;
 
 	sf::RenderWindow m_window;
 
 	TriSetErrorCompPackage m_triSetErrorCompPackage;
 
-	sf::Texture m_targetImageTexture;
+	sf::Texture m_targetTexture;
 	sf::Image m_targetImage;
 
 	sf::RenderTexture m_bestRenderTexture;
@@ -46,6 +50,10 @@ private:
 
 	std::vector<TriangleSet> m_triangleSets;
 	std::vector<std::pair<int, float>> m_fitnessRanking;
+
+	std::vector<StatisticPoint> m_statistics;
+	sf::RenderTexture m_statisticsRenderTexture;
+	sf::Sprite m_statisticsSprite;
 };
 
 #endif  // APP_H_
