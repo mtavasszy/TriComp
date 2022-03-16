@@ -37,6 +37,7 @@ public:
 	void MutateVertexValue(int t, int p);
 	sf::Vector2f MutatePosition(sf::Vector2f vec, bool isX);
 	void MutateColorValue(int t, int channel);
+	void MutateOrder(int t);
 
 	std::mt19937 m_gen;
 	
@@ -49,6 +50,7 @@ public:
 	std::uniform_int_distribution<int> m_mutValDist;
 	std::uniform_int_distribution<int> m_mutPosBitDist;
 	std::uniform_int_distribution<int> m_mutColBitDist;
+	std::uniform_int_distribution<int> m_mutSwapDist;
 
 	std::vector<sf::ConvexShape> m_triangles;
 };

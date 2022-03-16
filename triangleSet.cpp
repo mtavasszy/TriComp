@@ -57,6 +57,7 @@ void TriangleSet::InitRandom(int seed)
 	m_mutValDist = std::uniform_int_distribution<int>(0, 10); // 10 values in a triangle
 	m_mutPosBitDist = std::uniform_int_distribution<int>(0, N_VALBITS - 1);
 	m_mutColBitDist = std::uniform_int_distribution<int>(0, 31);
+	m_mutSwapDist = std::uniform_int_distribution<int>(0, N_TRIANGLES-1);
 }
 
 void TriangleSet::InitTriangles()
@@ -132,8 +133,8 @@ std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* o
 
 void TriangleSet::Mutate()
 {
-	//int triId = m_mutTriDist(m_gen);
 	for (int t = 0; t < N_TRIANGLES; t++) {
+		// mutate triangle position, color or alpha
 		if (m_mutTriDist(m_gen) < MUTATION_CHANCE) {
 			int valId = m_mutValDist(m_gen);
 
@@ -143,6 +144,11 @@ void TriangleSet::Mutate()
 			else {
 				MutateColorValue(t, valId - 6);
 			}
+		}
+
+		// swap position with other triangle
+		if (m_mutTriDist(m_gen) < ORDERCHANGE_CHANCE) {
+			MutateOrder(t);
 		}
 	}
 }
@@ -185,4 +191,10 @@ void TriangleSet::MutateColorValue(int t, int channel)
 	sf::Color newColor(color);
 
 	m_triangles[t].setFillColor(sf::Color(color));
+}
+
+void TriangleSet::MutateOrder(int t)
+{
+	int swapT = 0;// m_mutTriDist(m_gen);
+	std::swap(m_triangles[t], m_triangles[swapT]);
 }
