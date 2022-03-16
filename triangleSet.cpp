@@ -2,7 +2,7 @@
 
 TriangleSet::TriangleSet() {}
 
-TriangleSet::TriangleSet(const TriangleSet* p1, const TriangleSet* p2, int crossOverIndex)
+TriangleSet::TriangleSet(const TriangleSet* p1, const TriangleSet* p2)
 {
 	m_gen = p1->m_gen;
 
@@ -16,18 +16,24 @@ TriangleSet::TriangleSet(const TriangleSet* p1, const TriangleSet* p2, int cross
 	m_mutValDist = p1->m_mutValDist;
 	m_mutPosBitDist = p1->m_mutPosBitDist;
 	m_mutColBitDist = p1->m_mutColBitDist;
+	m_bigMutTypeDist = p1->m_bigMutTypeDist;
+
+	const auto crossOverDistP1 = std::uniform_int_distribution<int>(1, int(p1->m_triangles.size()));
+	const auto crossOverDistP2 = std::uniform_int_distribution<int>(1, int(p2->m_triangles.size()));
+
+	int crossOverP1 = crossOverDistP1(m_gen);
+	int crossOverP2 = crossOverDistP2(m_gen);
 
 	m_triangles.clear();
-	m_triangles.reserve(N_TRIANGLES);
-	for (int i = 0; i < N_TRIANGLES; i++) {
-		if (i < crossOverIndex) {
-			const sf::ConvexShape tri_copy = p1->m_triangles[i];
-			m_triangles.push_back(tri_copy);
-		}
-		else {
-			const sf::ConvexShape tri_copy = p2->m_triangles[i];
-			m_triangles.push_back(tri_copy);
-		}
+	m_triangles.reserve(crossOverP1 + crossOverP2);
+
+	for (int i = 0; i < crossOverP1; i++) {
+		const sf::ConvexShape tri_copy = p1->m_triangles[i];
+		m_triangles.push_back(tri_copy);
+	}
+	for (int i = 0; i < crossOverP2; i++) {
+		const sf::ConvexShape tri_copy = p2->m_triangles[p2->m_triangles.size() - crossOverP2 + i];
+		m_triangles.push_back(tri_copy);
 	}
 }
 
@@ -52,25 +58,20 @@ void TriangleSet::InitRandom(int seed)
 
 	m_triValDist = std::uniform_real_distribution<float>(0.f, 1.f);
 	m_colorDist = std::uniform_int_distribution<uint32_t>(0, UINT32_MAX);
-	m_crossOverDist = std::uniform_int_distribution<int>(0, N_TRIANGLES);
 	m_mutTriDist = std::uniform_real_distribution<float>(0.f, 1.f);
 	m_mutValDist = std::uniform_int_distribution<int>(0, 10); // 10 values in a triangle
 	m_mutPosBitDist = std::uniform_int_distribution<int>(0, N_VALBITS - 1);
 	m_mutColBitDist = std::uniform_int_distribution<int>(0, 31);
-	m_mutSwapDist = std::uniform_int_distribution<int>(0, N_TRIANGLES-1);
+
+	m_bigMutTypeDist = std::uniform_int_distribution<int>(0, 2);
 }
 
 void TriangleSet::InitTriangles()
 {
-	m_triangles.reserve(N_TRIANGLES);
+	m_triangles.reserve(TRI_START_N);
 
-	for (int i = 0; i < N_TRIANGLES; i++) {
-		sf::ConvexShape tri = sf::ConvexShape(3);
-		tri.setPoint(0, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
-		tri.setPoint(1, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
-		tri.setPoint(2, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
-		tri.setFillColor(sf::Color(m_colorDist(m_gen)));
-		m_triangles.push_back(tri);
+	for (int i = 0; i < TRI_START_N; i++) {
+		AddRandomTriangle();
 	}
 }
 
@@ -117,13 +118,13 @@ float TriangleSet::GetPixelAverageMipMap(TriSetErrorCompPackage& tsecp)
 	avgErrorImage = tsecp.smolRenderTexture.getTexture().copyToImage();
 	sf::Color resultMipMap = avgErrorImage.getPixel(0, 0);
 
-	return float(resultMipMap.r + resultMipMap.g + resultMipMap.b);
+	return float(resultMipMap.r + resultMipMap.g + resultMipMap.b) +float(m_triangles.size()) * TRI_AMOUNT_PUNISHMENT;
 }
 
 std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* otherParent)
 {
-	TriangleSet c1 = TriangleSet(this, otherParent, m_crossOverDist(m_gen));
-	TriangleSet c2 = TriangleSet(otherParent, this, m_crossOverDist(m_gen));
+	TriangleSet c1 = TriangleSet(this, otherParent);
+	TriangleSet c2 = TriangleSet(otherParent, this);
 
 	c1.Mutate();
 	c2.Mutate();
@@ -133,9 +134,9 @@ std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* o
 
 void TriangleSet::Mutate()
 {
-	for (int t = 0; t < N_TRIANGLES; t++) {
+	for (int t = 0; t < m_triangles.size(); t++) {
 		// mutate triangle position, color or alpha
-		if (m_mutTriDist(m_gen) < MUTATION_CHANCE) {
+		if (m_mutTriDist(m_gen) < TRI_MUTATION_CHANCE) {
 			int valId = m_mutValDist(m_gen);
 
 			if (valId < 6) {
@@ -145,10 +146,23 @@ void TriangleSet::Mutate()
 				MutateColorValue(t, valId - 6);
 			}
 		}
+	}
 
-		// swap position with other triangle
-		if (m_mutTriDist(m_gen) < ORDERCHANGE_CHANCE) {
-			MutateOrder(t);
+	// swap position with other triangle
+	if (m_mutTriDist(m_gen) < BIG_MUTATION_CHANCE) {
+		switch (m_bigMutTypeDist(m_gen))
+		{
+		case 0:
+			SwapRandomTriangle();
+			break;
+		case 1:
+			AddRandomTriangle();
+			break;
+		case 2:
+			RemoveRandomTriangle();
+			break;
+		default:
+			break;
 		}
 	}
 }
@@ -193,8 +207,25 @@ void TriangleSet::MutateColorValue(int t, int channel)
 	m_triangles[t].setFillColor(sf::Color(color));
 }
 
-void TriangleSet::MutateOrder(int t)
+void TriangleSet::SwapRandomTriangle()
 {
-	int swapT = 0;// m_mutTriDist(m_gen);
-	std::swap(m_triangles[t], m_triangles[swapT]);
+	const auto mutSwapDist = std::uniform_int_distribution<int>(0, int(m_triangles.size()) - 1);
+	const int t = mutSwapDist(m_gen);
+	std::swap(m_triangles[t], m_triangles[0]);
+}
+
+void TriangleSet::AddRandomTriangle()
+{
+	sf::ConvexShape tri = sf::ConvexShape(3);
+	tri.setPoint(0, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
+	tri.setPoint(1, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
+	tri.setPoint(2, sf::Vector2f(m_triValDist(m_gen) * float(m_imageW), m_triValDist(m_gen) * float(m_imageH)));
+	tri.setFillColor(sf::Color(m_colorDist(m_gen)));
+	m_triangles.push_back(tri);
+}
+
+void TriangleSet::RemoveRandomTriangle()
+{
+	auto removeDist = std::uniform_int_distribution<int>(0, int(m_triangles.size())-1);
+	m_triangles.erase(m_triangles.begin() + removeDist(m_gen));
 }

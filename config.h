@@ -13,11 +13,12 @@ constexpr bool SET_SEED = true;
 
 // EVOLUTIONARY ALGORITHM
 constexpr int GEN_SIZE = 1000;
-constexpr float MUTATION_CHANCE = 0.05f;
-constexpr float ORDERCHANGE_CHANCE = 0.05f;
+constexpr float TRI_MUTATION_CHANCE = 0.1f;
+constexpr float BIG_MUTATION_CHANCE = 0.2f;
+constexpr float TRI_AMOUNT_PUNISHMENT = 1.f;
 
 // TRIANGLE SET
-constexpr int N_TRIANGLES = 20;
+constexpr int TRI_START_N = 40;
 constexpr int N_VALBITS = 8;
 
 #endif  // CONFIG_H_

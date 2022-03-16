@@ -21,7 +21,7 @@ struct TriSetErrorCompPackage {
 class TriangleSet {
 public:
 	TriangleSet();
-	TriangleSet(const TriangleSet* p1, const TriangleSet* p2, int crossOverIndex);
+	TriangleSet(const TriangleSet* p1, const TriangleSet* p2);
 	TriangleSet(int seed, int screenW, int screenH);
 	void Initialize(int seed);
 	void InitRandom(int seed);
@@ -37,7 +37,10 @@ public:
 	void MutateVertexValue(int t, int p);
 	sf::Vector2f MutatePosition(sf::Vector2f vec, bool isX);
 	void MutateColorValue(int t, int channel);
-	void MutateOrder(int t);
+
+	void SwapRandomTriangle();
+	void AddRandomTriangle();
+	void RemoveRandomTriangle();
 
 	std::mt19937 m_gen;
 	
@@ -51,6 +54,7 @@ public:
 	std::uniform_int_distribution<int> m_mutPosBitDist;
 	std::uniform_int_distribution<int> m_mutColBitDist;
 	std::uniform_int_distribution<int> m_mutSwapDist;
+	std::uniform_int_distribution<int> m_bigMutTypeDist;
 
 	std::vector<sf::ConvexShape> m_triangles;
 };
