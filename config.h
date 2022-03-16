@@ -3,7 +3,7 @@
 
 // APP
 constexpr char TARGET_IMG_PATH[] = "images/src/";
-constexpr char TARGET_IMG_FNAME[] = "monalisa.jpg";
+constexpr char TARGET_IMG_FNAME[] = "picasso1.jpg";
 constexpr int STATISTICS_VIEW_H = 300;
 constexpr int STATISTICS_GRAPH_MARGIN_H = 20;
 constexpr int STATISTICS_GRAPH_MARGIN_W = 20;
