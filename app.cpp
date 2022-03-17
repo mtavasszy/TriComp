@@ -35,6 +35,7 @@ void App::Initialize()
 	LoadImageAndTextures();
 	LoadShaders();
 	InitWindow();
+	InitPlots();
 	InitTriSets();
 }
 
@@ -80,10 +81,6 @@ void App::LoadImageAndTextures()
 
 	m_triSetErrorCompPackage.triangleRenderTexture.create(m_imageW, m_imageH);
 	m_triSetErrorCompPackage.absErrorRenderTexture.create(m_imageW, m_imageH);
-
-	m_statisticsRenderTexture.create(WINDOW_W, STATISTICS_VIEW_H);
-	m_statisticsSprite.setTexture(m_statisticsRenderTexture.getTexture());
-	m_statisticsSprite.setPosition(sf::Vector2f(0.f, MAX_IMAGE_DIM));
 }
 
 void App::LoadShaders()
@@ -105,6 +102,13 @@ void App::InitWindow()
 	m_window.create(sf::VideoMode(WINDOW_W, WINDOW_H), "TriComp", sf::Style::Default, settings);
 
 	totalTimeSW = Stopwatch();
+}
+
+void App::InitPlots()
+{
+	m_errorPlot.Create(WINDOW_W, STATISTICS_VIEW_H, STATISTICS_GRAPH_MARGIN_W, STATISTICS_GRAPH_MARGIN_W, STATISTICS_GRAPH_MARGIN_H, STATISTICS_GRAPH_MARGIN_H);
+	m_errorPlot.m_sprite.setPosition(sf::Vector2f(0.f, MAX_IMAGE_DIM));
+
 }
 
 void App::InitTriSets()
@@ -202,7 +206,9 @@ void App::SetBest()
 
 void App::RecordStatistics()
 {
-	m_statistics.push_back(StatisticPoint{ m_fitnessRanking[0].second, m_fitnessRanking[GEN_SIZE / 2].second, m_fitnessRanking[GEN_SIZE - 1].second });
+	m_errorPlot.AddDataPoint(0, m_fitnessRanking[0].second);
+	m_errorPlot.AddDataPoint(1, m_fitnessRanking[GEN_SIZE / 2].second);
+	m_errorPlot.AddDataPoint(2, m_fitnessRanking[GEN_SIZE - 1].second);
 }
 
 void App::Draw()
@@ -212,8 +218,8 @@ void App::Draw()
 	m_window.draw(m_triSetErrorCompPackage.targetImageSprite);
 	m_window.draw(m_bestImageSprite);
 
-	DrawStatistics();
-	m_window.draw(m_statisticsSprite);
+	m_errorPlot.Draw();
+	m_window.draw(m_errorPlot.m_sprite);
 
 	m_window.display();
 
@@ -221,51 +227,4 @@ void App::Draw()
 	ss << "TriComp - " << std::fixed << std::setprecision(2) << float(totalTimeSW.elapsed()) / 1000.f << "s";
 
 	m_window.setTitle(ss.str());
-}
-
-void App::DrawStatistics()
-{
-	m_statisticsRenderTexture.clear(sf::Color(42, 42, 44));
-
-	// get min/max
-	float minError = FLT_MAX;
-	float maxError = -FLT_MAX;
-	for (int i = 0; i < m_statistics.size(); i++) {
-		minError = std::min(minError, m_statistics[i].minError);
-		maxError = std::max(maxError, m_statistics[i].minError); // todo make maxerror when plotting all
-	}
-
-	// draw axes
-
-
-	// draw text
-
-
-	// draw
-	if (m_statistics.size() > 1) {
-		
-		
-		float stepSize_x = float(WINDOW_W - 2 * STATISTICS_GRAPH_MARGIN_W) / float(m_statistics.size());
-		float stepSize_y = float(STATISTICS_VIEW_H - 2 * STATISTICS_GRAPH_MARGIN_H) / (maxError - minError);
-
-		for (int i = 0; i < m_statistics.size() - 1; i++) {
-
-			float x1 = STATISTICS_GRAPH_MARGIN_W + i * stepSize_x;
-			float x2 = STATISTICS_GRAPH_MARGIN_W + (i + 1) * stepSize_x;
-			float y1 = STATISTICS_VIEW_H - (STATISTICS_GRAPH_MARGIN_H + (m_statistics[i].minError - minError) * stepSize_y);
-			float y2 = STATISTICS_VIEW_H - (STATISTICS_GRAPH_MARGIN_H + (m_statistics[i + 1].minError - minError) * stepSize_y);
-
-			sf::Vertex line[] =
-			{
-				sf::Vertex(sf::Vector2f(x1, y1), sf::Color::White),
-				sf::Vertex(sf::Vector2f(x2, y2), sf::Color::White)
-			};
-
-			m_statisticsRenderTexture.draw(line, 2, sf::Lines);
-		}
-	}
-	m_statisticsRenderTexture.display();
-	m_statisticsSprite.setTexture(m_statisticsRenderTexture.getTexture(), true);
-	// draw to window
-	//m_window.draw(m_statisticsSprite);
 }

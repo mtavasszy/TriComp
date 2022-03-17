@@ -5,8 +5,8 @@
 #include <vector>
 #include <random>
 #include "triangleSet.h"
-#include "statistic.h"
 #include "stopwatch.h"
+#include "plot.h"
 
 class App {
 public:
@@ -19,6 +19,7 @@ private:
 	void LoadImageAndTextures();
 	void LoadShaders();
 	void InitWindow();
+	void InitPlots();
 	void InitTriSets();
 	void Update();
 	void RunGeneration();
@@ -26,7 +27,6 @@ private:
 	void SetBest();
 	void RecordStatistics();
 	void Draw();
-	void DrawStatistics();
 
 	std::mt19937 m_gen;
 	std::uniform_int_distribution<int> m_seedDist;
@@ -52,9 +52,7 @@ private:
 	std::vector<TriangleSet> m_triangleSets;
 	std::vector<std::pair<int, float>> m_fitnessRanking;
 
-	std::vector<StatisticPoint> m_statistics;
-	sf::RenderTexture m_statisticsRenderTexture;
-	sf::Sprite m_statisticsSprite;
+	Plot m_errorPlot;
 };
 
 #endif  // APP_H_
