@@ -31,7 +31,6 @@ private:
 	std::uniform_int_distribution<int> m_seedDist;
 
 	int m_imageW, m_imageH;
-	int m_screenW, m_screenH;
 
 	sf::RenderWindow m_window;
 

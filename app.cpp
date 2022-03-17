@@ -58,17 +58,19 @@ void App::LoadImageAndTextures()
 	m_imageW = m_targetImage.getSize().x;
 	m_imageH = m_targetImage.getSize().y;
 
-	m_screenW = m_imageW * 2;
-	m_screenH = m_imageH + STATISTICS_VIEW_H;
+	float imScaleX = float(MAX_IMAGE_DIM) / float(m_imageW);
+	float imScaleY = float(MAX_IMAGE_DIM) / float(m_imageH);
 
 	m_triSetErrorCompPackage.maxMipmapLvl = int(std::log2(std::max(m_imageW, m_imageH)));
 
 	m_targetTexture.loadFromImage(m_targetImage);
+	m_triSetErrorCompPackage.targetImageSprite.scale(imScaleX, imScaleY);
 	m_triSetErrorCompPackage.targetImageSprite.setTexture(m_targetTexture, true);
 
 	m_bestRenderTexture.create(m_targetImage.getSize().x, m_targetImage.getSize().y);
+	m_bestImageSprite.scale(imScaleX, imScaleY);
 	m_bestImageSprite.setTexture(m_bestRenderTexture.getTexture(), true);
-	m_bestImageSprite.setPosition(sf::Vector2f(float(m_targetImage.getSize().x), 0.f));
+	m_bestImageSprite.setPosition(sf::Vector2f(float(MAX_IMAGE_DIM), 0.f));
 
 	m_triSetErrorCompPackage.smolRenderTexture.create(1, 1);
 	m_triSetErrorCompPackage.smolSprite = sf::Sprite(m_triSetErrorCompPackage.smolRenderTexture.getTexture());
@@ -76,9 +78,9 @@ void App::LoadImageAndTextures()
 	m_triSetErrorCompPackage.triangleRenderTexture.create(m_imageW, m_imageH);
 	m_triSetErrorCompPackage.absErrorRenderTexture.create(m_imageW, m_imageH);
 
-	m_statisticsRenderTexture.create(m_screenW, STATISTICS_VIEW_H);
+	m_statisticsRenderTexture.create(WINDOW_W, STATISTICS_VIEW_H);
 	m_statisticsSprite.setTexture(m_statisticsRenderTexture.getTexture());
-	m_statisticsSprite.setPosition(sf::Vector2f(0.f, float(m_imageH)));
+	m_statisticsSprite.setPosition(sf::Vector2f(0.f, MAX_IMAGE_DIM));
 }
 
 void App::LoadShaders()
@@ -97,7 +99,7 @@ void App::InitWindow()
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
-	m_window.create(sf::VideoMode(m_screenW, m_screenH), "TriComp", sf::Style::Default, settings);
+	m_window.create(sf::VideoMode(WINDOW_W, WINDOW_H), "TriComp", sf::Style::Default, settings);
 }
 
 void App::InitTriSets()
@@ -233,7 +235,7 @@ void App::DrawStatistics()
 	if (m_statistics.size() > 1) {
 		
 		
-		float stepSize_x = float(m_screenW - 2 * STATISTICS_GRAPH_MARGIN_W) / float(m_statistics.size());
+		float stepSize_x = float(WINDOW_W - 2 * STATISTICS_GRAPH_MARGIN_W) / float(m_statistics.size());
 		float stepSize_y = float(STATISTICS_VIEW_H - 2 * STATISTICS_GRAPH_MARGIN_H) / (maxError - minError);
 
 		for (int i = 0; i < m_statistics.size() - 1; i++) {
