@@ -6,6 +6,7 @@
 #include <random>
 #include "triangleSet.h"
 #include "statistic.h"
+#include "stopwatch.h"
 
 class App {
 public:
@@ -33,6 +34,7 @@ private:
 	int m_imageW, m_imageH;
 
 	sf::RenderWindow m_window;
+	Stopwatch totalTimeSW;
 
 	TriSetErrorCompPackage m_triSetErrorCompPackage;
 

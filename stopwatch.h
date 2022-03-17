@@ -11,6 +11,13 @@ public:
         m_start = std::chrono::steady_clock::now();
     }
 
+    long long elapsed()
+    {
+        auto now = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start);
+        return duration.count();
+    }
+
     long long reset()
     {
         auto stop = std::chrono::steady_clock::now();

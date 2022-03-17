@@ -3,6 +3,9 @@
 #include <SFML/Graphics.hpp>
 #include "config.h"
 #include "stopwatch.h"
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 App::App() {}
 
@@ -100,6 +103,8 @@ void App::InitWindow()
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 4;
 	m_window.create(sf::VideoMode(WINDOW_W, WINDOW_H), "TriComp", sf::Style::Default, settings);
+
+	totalTimeSW = Stopwatch();
 }
 
 void App::InitTriSets()
@@ -211,6 +216,11 @@ void App::Draw()
 	m_window.draw(m_statisticsSprite);
 
 	m_window.display();
+
+	std::stringstream ss;
+	ss << "TriComp - " << std::fixed << std::setprecision(2) << float(totalTimeSW.elapsed()) / 1000.f << "s";
+
+	m_window.setTitle(ss.str());
 }
 
 void App::DrawStatistics()
