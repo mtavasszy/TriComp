@@ -175,15 +175,16 @@ void App::CreateOffspring()
 	std::cout << "Creating offspring...\n";
 	Stopwatch sw;
 
-	std::vector<TriangleSet> offspring(GEN_SIZE);
+	std::vector<TriangleSet> offspring;
+	offspring.reserve(GEN_SIZE);
 
 	for (int i = 0; i < GEN_SIZE / 2; i++) {
 		TriangleSet* t1 = &m_triangleSets[m_fitnessRanking[i].first];
 		TriangleSet* t2 = &m_triangleSets[m_fitnessRanking[i + 1].first];
 
 		auto crossBreedPair = t1->CrossBreed(t2);
-		offspring[i * 2] = crossBreedPair.first;
-		offspring[i * 2 + 1] = crossBreedPair.second;
+		offspring.push_back(crossBreedPair.first);
+		offspring.push_back(crossBreedPair.second);
 	}
 
 	m_triangleSets = offspring;
