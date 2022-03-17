@@ -19,7 +19,7 @@ constexpr bool SET_SEED = true;
 constexpr int GEN_SIZE = 500;
 constexpr float TRI_MUTATION_CHANCE = 0.1f;
 constexpr float BIG_MUTATION_CHANCE = 0.2f;
-constexpr float TRI_AMOUNT_PUNISHMENT = 1.f;
+constexpr float TRI_AMOUNT_PUNISHMENT = 0.001f;
 
 // TRIANGLE SET
 constexpr int TRI_START_N = 40;

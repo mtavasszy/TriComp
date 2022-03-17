@@ -118,7 +118,9 @@ float TriangleSet::GetPixelAverageMipMap(TriSetErrorCompPackage& tsecp)
 	avgErrorImage = tsecp.smolRenderTexture.getTexture().copyToImage();
 	sf::Color resultMipMap = avgErrorImage.getPixel(0, 0);
 
-	return float(resultMipMap.r + resultMipMap.g + resultMipMap.b) + float(m_triangles.size()) * TRI_AMOUNT_PUNISHMENT;
+	float MSE = float(resultMipMap.r + resultMipMap.g + resultMipMap.b);
+
+	return MSE + MSE * float(m_triangles.size()) * TRI_AMOUNT_PUNISHMENT;
 }
 
 std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* otherParent)
