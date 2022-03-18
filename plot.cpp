@@ -9,15 +9,25 @@ void Plot::Create(float sizeX, float sizeY, float marginLeft, float marginRight,
 	m_marginUp = marginUp;
 	m_marginDown = marginDown;
 
-	m_renderTexture.create(m_sizeX, m_sizeY);
+	m_renderTexture.create(int(m_sizeX), int(m_sizeY));
 	m_sprite.setTexture(m_renderTexture.getTexture(), true);
 
 	m_minVal = FLT_MAX;
 	m_maxVal = -FLT_MAX;
 
 	m_bgColor = sf::Color(42, 42, 44);
-	m_lineColor = sf::Color(255, 255, 255);
+	m_lineColors;
 	m_axisColor = sf::Color(255, 255, 255);
+}
+
+void Plot::AssignColor(int series_i, sf::Color col)
+{
+	if (series_i >= m_lineColors.size()) {
+		m_lineColors.push_back(col);
+		return;
+	}
+
+	m_lineColors[series_i] = col;
 }
 
 void Plot::AddDataPoint(int series_i, float val)
@@ -83,8 +93,8 @@ void Plot::DrawGraph()
 
 					sf::Vertex line[] =
 					{
-						sf::Vertex(sf::Vector2f(x1, y1), m_lineColor),
-						sf::Vertex(sf::Vector2f(x2, y2), m_lineColor)
+						sf::Vertex(sf::Vector2f(x1, y1), m_lineColors[s]),
+						sf::Vertex(sf::Vector2f(x2, y2), m_lineColors[s])
 					};
 
 					m_renderTexture.draw(line, 2, sf::Lines);

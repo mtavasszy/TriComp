@@ -109,6 +109,10 @@ void App::InitPlots()
 	m_errorPlot.Create(WINDOW_W, STATISTICS_VIEW_H, STATISTICS_GRAPH_MARGIN_W, STATISTICS_GRAPH_MARGIN_W, STATISTICS_GRAPH_MARGIN_H, STATISTICS_GRAPH_MARGIN_H);
 	m_errorPlot.m_sprite.setPosition(sf::Vector2f(0.f, MAX_IMAGE_DIM));
 
+	m_errorPlot.AssignColor(0, sf::Color(180, 255, 180));
+	m_errorPlot.AssignColor(1, sf::Color(255, 255, 255));
+	m_errorPlot.AssignColor(2, sf::Color(255, 180, 180));
+
 }
 
 void App::InitTriSets()
