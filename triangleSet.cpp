@@ -2,39 +2,49 @@
 
 TriangleSet::TriangleSet() {}
 
-TriangleSet::TriangleSet(const TriangleSet* p1, const TriangleSet* p2)
+TriangleSet::TriangleSet(std::vector<const TriangleSet*> parents, const int seed)
 {
-	m_gen = p1->m_gen;
+	InitRandom(seed);
 
-	m_imageW = p1->m_imageW;
-	m_imageH = p1->m_imageH;
+	m_imageW = parents[0]->m_imageW;
+	m_imageH = parents[0]->m_imageH;
 
-	m_triValDist = p1->m_triValDist;
-	m_colorDist = p1->m_colorDist;
-	m_crossOverDist = p1->m_crossOverDist;
-	m_mutTriDist = p1->m_mutTriDist;
-	m_mutValDist = p1->m_mutValDist;
-	m_mutPosBitDist = p1->m_mutPosBitDist;
-	m_mutColBitDist = p1->m_mutColBitDist;
-	m_bigMutTypeDist = p1->m_bigMutTypeDist;
+	// get total amount of triangles from all parents
+	int totalTris = 0;
+	for (int i = 0; i < parents.size(); i++) {
+		totalTris += parents[i]->m_triangles.size();
+	}
 
-	const auto crossOverDistP1 = std::uniform_int_distribution<int>(1, int(p1->m_triangles.size()));
-	const auto crossOverDistP2 = std::uniform_int_distribution<int>(1, int(p2->m_triangles.size()));
+	// get binomial probability of passing a triangle for each parent
+	float totalTrisInv = 1.f / float(totalTris);
+	std::vector<float> parentP(parents.size());
+	for (int i = 0; i < parents.size(); i++) {
+		parentP[i] = float(parents[i]->m_triangles.size()) * totalTrisInv;
+	}
 
-	int crossOverP1 = crossOverDistP1(m_gen);
-	int crossOverP2 = crossOverDistP2(m_gen);
+	std::vector<int> parentCount(parents.size());
 
 	m_triangles.clear();
-	m_triangles.reserve(crossOverP1 + crossOverP2);
 
-	for (int i = 0; i < crossOverP1; i++) {
-		const sf::ConvexShape tri_copy = p1->m_triangles[i];
-		m_triangles.push_back(tri_copy);
+	int currentParent = -1;
+	for (int i = 0; i < totalTris; i++) {
+		do {
+			currentParent++;
+			if (currentParent >= parents.size()) {
+				currentParent = 0;
+			}
+		} while (parentCount[currentParent] >= parents[currentParent]->m_triangles.size());
+
+		if (m_crossDist(m_gen) < parentP[currentParent]) {
+			const sf::ConvexShape tri_copy = parents[currentParent]->m_triangles[parentCount[currentParent]];
+			m_triangles.push_back(tri_copy);
+		}
+		parentCount[currentParent]++;
+
+
 	}
-	for (int i = 0; i < crossOverP2; i++) {
-		const sf::ConvexShape tri_copy = p2->m_triangles[p2->m_triangles.size() - crossOverP2 + i];
-		m_triangles.push_back(tri_copy);
-	}
+
+	Mutate();
 }
 
 TriangleSet::TriangleSet(int seed, int screenW, int screenH)
@@ -58,11 +68,11 @@ void TriangleSet::InitRandom(int seed)
 
 	m_triValDist = std::uniform_real_distribution<float>(0.f, 1.f);
 	m_colorDist = std::uniform_int_distribution<uint32_t>(0, UINT32_MAX);
+	m_crossDist = std::uniform_real_distribution<float>(0.f, 1.f);
 	m_mutTriDist = std::uniform_real_distribution<float>(0.f, 1.f);
 	m_mutValDist = std::uniform_int_distribution<int>(0, 10); // 10 values in a triangle
 	m_mutPosBitDist = std::uniform_int_distribution<int>(0, N_VALBITS - 1);
 	m_mutColBitDist = std::uniform_int_distribution<int>(0, 31);
-
 	m_bigMutTypeDist = std::uniform_int_distribution<int>(0, 2);
 }
 
@@ -129,17 +139,6 @@ float TriangleSet::GetPixelAverageMipMap(TriSetErrorCompPackage& tsecp)
 	float MSE = float(resultMipMap.r + resultMipMap.g + resultMipMap.b);
 
 	return MSE + MSE * float(m_triangles.size()) * TRI_AMOUNT_PUNISHMENT;
-}
-
-std::pair<TriangleSet, TriangleSet> TriangleSet::CrossBreed(const TriangleSet* otherParent)
-{
-	TriangleSet c1 = TriangleSet(this, otherParent);
-	TriangleSet c2 = TriangleSet(otherParent, this);
-
-	c1.Mutate();
-	c2.Mutate();
-
-	return std::pair<TriangleSet, TriangleSet>(c1, c2);
 }
 
 void TriangleSet::Mutate()

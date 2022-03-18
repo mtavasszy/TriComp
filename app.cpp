@@ -196,7 +196,7 @@ void App::CreateOffspring()
 	std::vector<TriangleSet> offspring;
 	offspring.reserve(GEN_SIZE);
 
-	for (int i = 0; i < GEN_SIZE / 2; i++) {
+	for (int i = 0; i < GEN_SIZE; i++) {
 		int i1 = GetCDFDraw();
 		int i2;
 		do {
@@ -206,9 +206,9 @@ void App::CreateOffspring()
 		TriangleSet* t1 = &m_triangleSets[m_fitnessRanking[i1].first];
 		TriangleSet* t2 = &m_triangleSets[m_fitnessRanking[i2].first];
 
-		auto crossBreedPair = t1->CrossBreed(t2);
-		offspring.push_back(crossBreedPair.first);
-		offspring.push_back(crossBreedPair.second);
+		TriangleSet child = TriangleSet(std::vector<const TriangleSet*>{t1, t2}, m_seedDist(m_gen));
+
+		offspring.push_back(child);
 	}
 
 	m_triangleSets = offspring;

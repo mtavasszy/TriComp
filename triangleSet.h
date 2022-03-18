@@ -21,7 +21,7 @@ struct TriSetErrorCompPackage {
 class TriangleSet {
 public:
 	TriangleSet();
-	TriangleSet(const TriangleSet* p1, const TriangleSet* p2);
+	TriangleSet(std::vector<const TriangleSet*> parents, const int seed);
 	TriangleSet(int seed, int screenW, int screenH);
 	void Initialize(int seed);
 	void InitRandom(int seed);
@@ -33,7 +33,6 @@ public:
 	void DrawRenderTexture(sf::RenderTexture& rt);
 	float GetPixelAverageMipMap(TriSetErrorCompPackage& triSetErrorCompPackage);
 
-	std::pair<TriangleSet, TriangleSet> CrossBreed(const TriangleSet* otherParent);
 	void Mutate();
 	void MutateVertexValue(int t, int p);
 	sf::Vector2f MutatePosition(sf::Vector2f vec, bool isX);
@@ -49,13 +48,14 @@ public:
 	
 	std::uniform_real_distribution<float> m_triValDist;
 	std::uniform_int_distribution<uint32_t> m_colorDist;
-	std::uniform_int_distribution<int> m_crossOverDist;
+	std::uniform_real_distribution<float> m_crossDist;
 	std::uniform_real_distribution<float> m_mutTriDist;
 	std::uniform_int_distribution<int> m_mutValDist;
 	std::uniform_int_distribution<int> m_mutPosBitDist;
 	std::uniform_int_distribution<int> m_mutColBitDist;
 	std::uniform_int_distribution<int> m_mutSwapDist;
 	std::uniform_int_distribution<int> m_bigMutTypeDist;
+
 
 	std::vector<sf::ConvexShape> m_triangles;
 };
