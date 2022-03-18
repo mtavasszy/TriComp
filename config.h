@@ -13,13 +13,14 @@ constexpr int STATISTICS_GRAPH_MARGIN_H = 20;
 constexpr int STATISTICS_GRAPH_MARGIN_W = 20;
 
 constexpr int SEED = 0;
-constexpr bool SET_SEED = true;
+constexpr bool SET_SEED = false;
 
 // EVOLUTIONARY ALGORITHM
 constexpr int GEN_SIZE = 1000;
+constexpr float CDF_SLOPE = 1.f;
 constexpr float TRI_MUTATION_CHANCE = 0.1f;
 constexpr float BIG_MUTATION_CHANCE = 0.2f;
-constexpr float TRI_AMOUNT_PUNISHMENT = 0.002f;
+constexpr float TRI_AMOUNT_PUNISHMENT = 0.01f;
 constexpr int N_PARENTS = 3;
 
 

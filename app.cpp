@@ -60,7 +60,7 @@ void App::InitConstants()
 	m_rankingCDF.push_back(float(GEN_SIZE));
 
 	for (int i = 1; i < GEN_SIZE; i++) {
-		m_rankingCDF.push_back(float(GEN_SIZE - i) + m_rankingCDF[i - 1]);
+		m_rankingCDF.push_back(float(GEN_SIZE) - (float(i)/ CDF_SLOPE) + m_rankingCDF[i - 1]);
 	}
 
 	m_cdfDist = std::uniform_real_distribution<float>(0, m_rankingCDF.back());
@@ -180,12 +180,9 @@ void App::RunGeneration()
 		m_fitnessRanking.push_back(std::pair<int, float>(i, fitness));
 	}
 
-	std::cout << "All triangle sets evaluated! It took " << sw.reset() << " ms\n";
-	std::cout << "Sorting on highest fitness...\n";
-
 	std::sort(m_fitnessRanking.begin(), m_fitnessRanking.end(), FitnessSortComp);
 
-	std::cout << "Sorting completed! It took " << sw.reset() << " ms\n";
+	std::cout << "All triangle sets evaluated! It took " << sw.reset() << " ms\n";
 }
 
 void App::CreateOffspring()
@@ -199,6 +196,7 @@ void App::CreateOffspring()
 	std::vector<const TriangleSet*> parents(N_PARENTS);
 
 	for (int i = 0; i < GEN_SIZE; i++) {
+
 
 		for (int j = 0; j < N_PARENTS; j++) {
 			parents[j] = &m_triangleSets[m_fitnessRanking[GetCDFDraw()].first];
