@@ -16,6 +16,7 @@ public:
 private:
 	void Initialize();
 	void InitRandom();
+	void InitConstants();
 	void LoadImageAndTextures();
 	void LoadShaders();
 	void InitWindow();
@@ -24,6 +25,7 @@ private:
 	void Update();
 	void RunGeneration();
 	void CreateOffspring();
+	int GetCDFDraw();
 	void SetBest();
 	void RecordStatistics();
 	void Draw();
@@ -51,6 +53,8 @@ private:
 
 	std::vector<TriangleSet> m_triangleSets;
 	std::vector<std::pair<int, float>> m_fitnessRanking;
+	std::vector<float> m_rankingCDF;
+	std::uniform_real_distribution<float> m_cdfDist;
 
 	Plot m_errorPlot;
 };

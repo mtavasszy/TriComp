@@ -32,6 +32,7 @@ void App::Run()
 void App::Initialize()
 {
 	InitRandom();
+	InitConstants();
 	LoadImageAndTextures();
 	LoadShaders();
 	InitWindow();
@@ -50,6 +51,19 @@ void App::InitRandom()
 	}
 
 	m_seedDist = std::uniform_int_distribution<int>(0, INT_MAX);
+}
+
+void App::InitConstants()
+{
+	// CDF for weighted random
+	m_rankingCDF.reserve(GEN_SIZE);
+	m_rankingCDF.push_back(float(GEN_SIZE));
+
+	for (int i = 1; i < GEN_SIZE; i++) {
+		m_rankingCDF.push_back(float(GEN_SIZE - i) + m_rankingCDF[i - 1]);
+	}
+
+	m_cdfDist = std::uniform_real_distribution<float>(0, m_rankingCDF.back());
 }
 
 void App::LoadImageAndTextures()
@@ -183,8 +197,14 @@ void App::CreateOffspring()
 	offspring.reserve(GEN_SIZE);
 
 	for (int i = 0; i < GEN_SIZE / 2; i++) {
-		TriangleSet* t1 = &m_triangleSets[m_fitnessRanking[i].first];
-		TriangleSet* t2 = &m_triangleSets[m_fitnessRanking[i + 1].first];
+		int i1 = GetCDFDraw();
+		int i2;
+		do {
+			i2 = GetCDFDraw();
+		} while (i1 == i2);
+
+		TriangleSet* t1 = &m_triangleSets[m_fitnessRanking[i1].first];
+		TriangleSet* t2 = &m_triangleSets[m_fitnessRanking[i2].first];
 
 		auto crossBreedPair = t1->CrossBreed(t2);
 		offspring.push_back(crossBreedPair.first);
@@ -194,6 +214,17 @@ void App::CreateOffspring()
 	m_triangleSets = offspring;
 
 	std::cout << "Offspring generated! It took " << sw.reset() << " ms\n";
+}
+
+int App::GetCDFDraw()
+{
+	const float r = m_cdfDist(m_gen);
+
+	for (int i = 0; i < m_rankingCDF.size(); i++) {
+		if (m_rankingCDF[i] > r)
+			return i;
+	}
+	return int(m_rankingCDF.size()) - 1;
 }
 
 void App::SetBest()
