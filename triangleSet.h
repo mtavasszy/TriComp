@@ -27,6 +27,7 @@ public:
 	void InitRandom(int seed);
 	void InitTriangles();
 
+	float GetFitness(TriSetErrorCompPackage& triSetErrorCompPackage);
 	float GetAbsoluteError(TriSetErrorCompPackage& triSetErrorCompPackage);
 	void DrawAbsErrorTexture(TriSetErrorCompPackage& triSetErrorCompPackage);
 	void DrawRenderTexture(sf::RenderTexture& rt);

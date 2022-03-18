@@ -116,7 +116,7 @@ void App::InitTriSets()
 	std::cout << "Generating " << GEN_SIZE << " random triangle sets...\n";
 	Stopwatch sw;
 
-	m_lowestError = FLT_MAX;
+	m_bestFitness = -FLT_MAX;
 
 	m_triangleSets.clear();
 	m_triangleSets.reserve(GEN_SIZE);
@@ -140,30 +140,30 @@ void App::Update()
 	std::cout << "\n---------------\n";
 	std::cout << "Iteration " << ++m_iterations << " finished, total time was " << sw.reset() << " ms\n";
 	std::cout << "Amount of triangles = " << m_bestTriangleSet.m_triangles.size() << "\n";
-	std::cout << "Lowest error so far is " << m_lowestError << "\n";
+	std::cout << "Highest fitness so far is " << m_bestFitness << "\n";
 	std::cout << "---------------\n\n";
 }
 
 bool FitnessSortComp(const std::pair<int, float> f0, const std::pair<int, float> f1)
 {
-	return (f0.second < f1.second);
+	return (f0.second > f1.second);
 }
 
 void App::RunGeneration()
 {
-	std::cout << "Computing all triangle set errors...\n";
+	std::cout << "Computing all triangle set fitnesses...\n";
 	Stopwatch sw;
 
 	m_fitnessRanking.clear();
 	m_fitnessRanking.reserve(GEN_SIZE);
 
 	for (int i = 0; i < m_triangleSets.size(); i++) {
-		const float fitness = m_triangleSets[i].GetAbsoluteError(m_triSetErrorCompPackage);
+		const float fitness = m_triangleSets[i].GetFitness(m_triSetErrorCompPackage);
 		m_fitnessRanking.push_back(std::pair<int, float>(i, fitness));
 	}
 
 	std::cout << "All triangle sets evaluated! It took " << sw.reset() << " ms\n";
-	std::cout << "Sorting on lowest error...\n";
+	std::cout << "Sorting on highest fitness...\n";
 
 	std::sort(m_fitnessRanking.begin(), m_fitnessRanking.end(), FitnessSortComp);
 
@@ -195,11 +195,11 @@ void App::CreateOffspring()
 void App::SetBest()
 {
 	int bestTriSetId = m_fitnessRanking[0].first;
-	std::cout << "Best creature of this generation is " << bestTriSetId << " with an error of " << m_fitnessRanking[0].second << "\n" ;
+	std::cout << "Best creature of this generation is " << bestTriSetId << " with a fitness of " << m_fitnessRanking[0].second << "\n" ;
 
-	if (m_fitnessRanking[0].second < m_lowestError) {
+	if (m_fitnessRanking[0].second > m_bestFitness) {
 		m_bestTriangleSet = m_triangleSets[m_fitnessRanking[0].first];
-		m_lowestError = m_fitnessRanking[0].second;
+		m_bestFitness = m_fitnessRanking[0].second;
 	}
 
 	m_bestTriangleSet.DrawRenderTexture(m_bestRenderTexture);

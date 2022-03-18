@@ -45,7 +45,7 @@ private:
 	sf::Sprite m_bestImageSprite;
 	TriangleSet m_bestTriangleSet;
 
-	float m_lowestError;
+	float m_bestFitness;
 
 	int m_iterations = 0;
 

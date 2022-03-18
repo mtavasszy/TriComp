@@ -75,6 +75,14 @@ void TriangleSet::InitTriangles()
 	}
 }
 
+
+
+float TriangleSet::GetFitness(TriSetErrorCompPackage& triSetErrorCompPackage)
+{
+	const float maxPossibleError = 1000.f;
+	return maxPossibleError - GetAbsoluteError(triSetErrorCompPackage);
+}
+
 float TriangleSet::GetAbsoluteError(TriSetErrorCompPackage& tsecp)
 {
 	// get per-pixel absolute error between target and generated
