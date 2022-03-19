@@ -38,9 +38,9 @@ public:
 	sf::Vector2f MutatePosition(sf::Vector2f vec, bool isX);
 	void MutateColorValue(int t, int channel);
 
-	void SwapRandomTriangle();
+	void SwapRandomTriangle(int t);
 	void AddRandomTriangle();
-	void RemoveRandomTriangle();
+	void RemoveTriangle(int t);
 
 	std::mt19937 m_gen;
 	

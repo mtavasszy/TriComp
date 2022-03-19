@@ -196,15 +196,12 @@ void App::CreateOffspring()
 	std::vector<const TriangleSet*> parents(N_PARENTS);
 
 	for (int i = 0; i < GEN_SIZE; i++) {
-
-
-		for (int j = 0; j < N_PARENTS; j++) {
+		// get parents
+		for (int j = 0; j < N_PARENTS; j++) { 
 			parents[j] = &m_triangleSets[m_fitnessRanking[GetCDFDraw()].first];
 		}
 
-		TriangleSet child = TriangleSet(parents, m_seedDist(m_gen));
-
-		offspring.push_back(child);
+		offspring.push_back(TriangleSet(parents, m_seedDist(m_gen)));
 	}
 
 	m_triangleSets = offspring;

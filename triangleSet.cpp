@@ -12,7 +12,7 @@ TriangleSet::TriangleSet(std::vector<const TriangleSet*> parents, const int seed
 	// get total amount of triangles from all parents
 	int totalTris = 0;
 	for (int i = 0; i < parents.size(); i++) {
-		totalTris += parents[i]->m_triangles.size();
+		totalTris += int(parents[i]->m_triangles.size());
 	}
 
 	// get binomial probability of passing a triangle for each parent
@@ -40,8 +40,6 @@ TriangleSet::TriangleSet(std::vector<const TriangleSet*> parents, const int seed
 			m_triangles.push_back(tri_copy);
 		}
 		parentCount[currentParent]++;
-
-
 	}
 
 	Mutate();
@@ -155,23 +153,26 @@ void TriangleSet::Mutate()
 				MutateColorValue(t, valId - 6);
 			}
 		}
-	}
 
-	// swap position with other triangle
-	if (m_mutTriDist(m_gen) < BIG_MUTATION_CHANCE) {
-		switch (m_bigMutTypeDist(m_gen))
-		{
-		case 0:
-			SwapRandomTriangle();
-			break;
-		case 1:
-			AddRandomTriangle();
-			break;
-		case 2:
-			RemoveRandomTriangle();
-			break;
-		default:
-			break;
+		if (m_mutTriDist(m_gen) < BIG_MUTATION_CHANCE) {
+			switch (m_bigMutTypeDist(m_gen))
+			{
+			case 0:
+				SwapRandomTriangle(t);
+				break;
+
+			case 1:
+				AddRandomTriangle();
+				break;
+
+			case 2: {
+				RemoveTriangle(t);
+				t--;
+			} break;
+
+			default:
+				break;
+			}
 		}
 	}
 }
@@ -216,11 +217,10 @@ void TriangleSet::MutateColorValue(int t, int channel)
 	m_triangles[t].setFillColor(sf::Color(color));
 }
 
-void TriangleSet::SwapRandomTriangle()
+void TriangleSet::SwapRandomTriangle(int t)
 {
 	const auto mutSwapDist = std::uniform_int_distribution<int>(0, int(m_triangles.size()) - 1);
-	const int t = mutSwapDist(m_gen);
-	std::swap(m_triangles[t], m_triangles[0]);
+	std::swap(m_triangles[t], m_triangles[mutSwapDist(m_gen)]);
 }
 
 void TriangleSet::AddRandomTriangle()
@@ -233,8 +233,7 @@ void TriangleSet::AddRandomTriangle()
 	m_triangles.push_back(tri);
 }
 
-void TriangleSet::RemoveRandomTriangle()
+void TriangleSet::RemoveTriangle(int t)
 {
-	auto removeDist = std::uniform_int_distribution<int>(0, int(m_triangles.size()) - 1);
-	m_triangles.erase(m_triangles.begin() + removeDist(m_gen));
+	m_triangles.erase(m_triangles.begin() + t);
 }
