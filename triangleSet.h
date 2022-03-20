@@ -21,7 +21,7 @@ struct TriSetErrorCompPackage {
 class TriangleSet {
 public:
 	TriangleSet();
-	TriangleSet(std::vector<const TriangleSet*> parents, const int seed);
+	TriangleSet(const TriangleSet* ts1, const TriangleSet* ts2, const int seed);
 	TriangleSet(int seed, int screenW, int screenH);
 	void Initialize(int seed);
 	void InitRandom(int seed);
@@ -41,6 +41,9 @@ public:
 	void SwapRandomTriangle(int t);
 	void AddRandomTriangle();
 	void RemoveTriangle(int t);
+
+	void CrossoverUniform(const TriangleSet* ts1, const TriangleSet* ts2);
+	void CrossoverOnePoint(const TriangleSet* ts1, const TriangleSet* ts2);
 
 	std::mt19937 m_gen;
 	

@@ -2,45 +2,15 @@
 
 TriangleSet::TriangleSet() {}
 
-TriangleSet::TriangleSet(std::vector<const TriangleSet*> parents, const int seed)
+TriangleSet::TriangleSet(const TriangleSet* ts1, const TriangleSet* ts2, const int seed)
 {
 	InitRandom(seed);
 
-	m_imageW = parents[0]->m_imageW;
-	m_imageH = parents[0]->m_imageH;
+	m_imageW = ts1->m_imageW;
+	m_imageH = ts1->m_imageH;
 
-	// get total amount of triangles from all parents
-	int totalTris = 0;
-	for (int i = 0; i < parents.size(); i++) {
-		totalTris += int(parents[i]->m_triangles.size());
-	}
-
-	// get binomial probability of passing a triangle for each parent
-	float totalTrisInv = 1.f / float(totalTris);
-	std::vector<float> parentP(parents.size());
-	for (int i = 0; i < parents.size(); i++) {
-		parentP[i] = float(parents[i]->m_triangles.size()) * totalTrisInv;
-	}
-
-	std::vector<int> parentCount(parents.size());
-
-	m_triangles.clear();
-
-	int currentParent = -1;
-	for (int i = 0; i < totalTris; i++) {
-		do {
-			currentParent++;
-			if (currentParent >= parents.size()) {
-				currentParent = 0;
-			}
-		} while (parentCount[currentParent] >= parents[currentParent]->m_triangles.size());
-
-		if (m_crossDist(m_gen) < parentP[currentParent]) {
-			const sf::ConvexShape tri_copy = parents[currentParent]->m_triangles[parentCount[currentParent]];
-			m_triangles.push_back(tri_copy);
-		}
-		parentCount[currentParent]++;
-	}
+	//CrossoverUniform(ts1,ts2);
+	CrossoverOnePoint(ts1,ts2);
 
 	Mutate();
 }
@@ -236,4 +206,70 @@ void TriangleSet::AddRandomTriangle()
 void TriangleSet::RemoveTriangle(int t)
 {
 	m_triangles.erase(m_triangles.begin() + t);
+}
+
+void TriangleSet::CrossoverUniform(const TriangleSet* ts1, const TriangleSet* ts2)
+{
+	m_triangles.clear();
+	
+	int totalTris = int(ts1->m_triangles.size()) + int(ts2->m_triangles.size());
+	float totalTrisInv = 1.f / float(totalTris);
+
+	float p1 = float(ts1->m_triangles.size()) * totalTrisInv;
+	float p2 = float(ts2->m_triangles.size()) * totalTrisInv;
+
+	int c1 = 0;
+	int c2 = 0;
+
+	int currentParent = -1;
+	do  {
+		if (c1 < ts1->m_triangles.size()) {
+			if (m_crossDist(m_gen) < p1) {
+				const sf::ConvexShape tri_copy = ts1->m_triangles[c1];
+				m_triangles.push_back(tri_copy);
+			}
+			c1++;
+		}
+		if (c2 < ts2->m_triangles.size()) {
+			if (m_crossDist(m_gen) < p2) {
+				const sf::ConvexShape tri_copy = ts2->m_triangles[c2];
+				m_triangles.push_back(tri_copy);
+			}
+			c2++;
+		}
+	} while (c1 < ts1->m_triangles.size() || c2 < ts2->m_triangles.size());
+}
+
+void TriangleSet::CrossoverOnePoint(const TriangleSet* ts1, const TriangleSet* ts2)
+{
+	m_triangles.clear();
+
+	auto orderDist = std::uniform_int_distribution<int>(0, 1);
+	float crossPoint = m_crossDist(m_gen);
+
+	int p1 = int(crossPoint * float(ts1->m_triangles.size()));
+	int p2 = int(crossPoint * float(ts2->m_triangles.size()));
+
+	bool ts1First = orderDist(m_gen) == 0;
+
+	if (ts1First) {
+		for (int i = 0; i < p1; i++) {
+			const sf::ConvexShape tri_copy = ts1->m_triangles[i];
+			m_triangles.push_back(tri_copy);
+		}
+		for (int i = 0; i < int(ts2->m_triangles.size()) - p2; i++) {
+			const sf::ConvexShape tri_copy = ts2->m_triangles[p2 + i];
+			m_triangles.push_back(tri_copy);
+		}
+	}
+	else {
+		for (int i = 0; i < p2; i++) {
+			const sf::ConvexShape tri_copy = ts2->m_triangles[i];
+			m_triangles.push_back(tri_copy);
+		}
+		for (int i = 0; i < int(ts1->m_triangles.size()) - p1; i++) {
+			const sf::ConvexShape tri_copy = ts1->m_triangles[p1 + i];
+			m_triangles.push_back(tri_copy);
+		}
+	}
 }

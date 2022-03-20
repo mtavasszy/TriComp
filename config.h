@@ -18,11 +18,9 @@ constexpr bool SET_SEED = false;
 // EVOLUTIONARY ALGORITHM
 constexpr int GEN_SIZE = 1000;
 constexpr float CDF_SLOPE = 1.f;
-constexpr float TRI_MUTATION_CHANCE = 0.1f;
-constexpr float BIG_MUTATION_CHANCE = 0.05f;
-constexpr float TRI_AMOUNT_PUNISHMENT = 0.01f;
-constexpr int N_PARENTS = 2;
-
+constexpr float TRI_MUTATION_CHANCE = 0.3f;
+constexpr float BIG_MUTATION_CHANCE = 0.1f;
+constexpr float TRI_AMOUNT_PUNISHMENT = 0.001f;
 
 // TRIANGLE SET
 constexpr int TRI_START_N = 40;
