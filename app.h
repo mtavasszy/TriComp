@@ -15,23 +15,13 @@ public:
 
 private:
 	void Initialize();
-	void InitRandom();
-	void InitConstants();
 	void LoadImageAndTextures();
 	void LoadShaders();
 	void InitWindow();
 	void InitPlots();
-	void InitTriSets();
 	void Update();
-	void RunGeneration();
-	void CreateOffspring();
-	int GetCDFDraw();
-	void SetBest();
 	void RecordStatistics();
 	void Draw();
-
-	std::mt19937 m_gen;
-	std::uniform_int_distribution<int> m_seedDist;
 
 	int m_imageW, m_imageH;
 
@@ -47,14 +37,11 @@ private:
 	sf::Sprite m_bestImageSprite;
 	TriangleSet m_bestTriangleSet;
 
-	float m_bestFitness;
+	float m_lowestError = FLT_MAX;
 
 	int m_iterations = 0;
-
-	std::vector<TriangleSet> m_triangleSets;
-	std::vector<std::pair<int, float>> m_fitnessRanking;
-	std::vector<float> m_rankingCDF;
-	std::uniform_real_distribution<float> m_cdfDist;
+	int m_n_muts = 0;
+	int m_n_improvements = 0;
 
 	Plot m_errorPlot;
 };
